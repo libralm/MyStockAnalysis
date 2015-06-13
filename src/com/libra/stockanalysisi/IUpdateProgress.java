@@ -12,4 +12,6 @@ public interface IUpdateProgress {
 	 * 更新完成
 	 */
 	void onFinish();
+	
+	void onFailure(Throwable pThrowable);
 }

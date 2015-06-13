@@ -233,7 +233,7 @@ public class BussisceFacde {
 				@Override
 				public void onFailure(Throwable pThrowable) {
 					// TODO Auto-generated method stub
-
+					m_UpdateProgressCallBack.onFailure(pThrowable);
 				}
 			});
 		}
