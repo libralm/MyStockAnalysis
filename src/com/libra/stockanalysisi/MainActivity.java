@@ -158,4 +158,11 @@ public class MainActivity extends ActionBarActivity implements OnClickListener, 
 			TextView tx;
 		}
 	}
+
+	@Override
+	public void onFinish() {
+		// TODO Auto-generated method stub
+		m_UpdateDialog.dismiss();
+		Toast.makeText(this, "已更新至最新数据", Toast.LENGTH_SHORT).show();
+	}
 }

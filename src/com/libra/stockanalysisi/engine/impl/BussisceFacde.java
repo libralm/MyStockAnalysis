@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,12 +82,31 @@ public class BussisceFacde {
 	public void updateData(IUpdateProgress pUpdateCallback){
 		m_UpdateProgressCallBack = pUpdateCallback;
 		try {
-			downloadAllBaseStocksInfo();
+			if(isVaildDay(new Date())){				
+				downloadAllBaseStocksInfo();
+			} else{
+				pUpdateCallback.onFinish();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * 是否为交易日
+	 * @param date
+	 * @return
+	 */
+	private boolean isVaildDay(Date date){
+		Calendar calendar = Calendar.getInstance(Locale.CHINA);
+		calendar.setTime(date);
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		if(dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY){
+			return false;
+		}
+		return true;
 	}
 
 	/**

@@ -7,4 +7,9 @@ public interface IUpdateProgress {
 	 * @param progress
 	 */
 	void update(int progress);
+	
+	/**
+	 * 更新完成
+	 */
+	void onFinish();
 }
