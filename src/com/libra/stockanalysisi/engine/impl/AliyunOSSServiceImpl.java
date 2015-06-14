@@ -1,16 +1,20 @@
-package com.libra.stockanalysisi;
+package com.libra.stockanalysisi.engine.impl;
 
 import java.io.File;
 
-import com.alibaba.sdk.android.oss.OSSClient;
+import android.content.Context;
+
+import com.alibaba.sdk.android.oss.OSSService;
+import com.alibaba.sdk.android.oss.OSSServiceProvider;
 import com.libra.stockanalysisi.engine.IOSSService;
 
 public class AliyunOSSServiceImpl implements IOSSService {
 	
-	private OSSClient m_OSSClient;
+	private OSSService m_OSSService;
 	
-	public AliyunOSSServiceImpl(){
-		m_OSSClient = new OSSClient();
+	public AliyunOSSServiceImpl(Context pContext){
+		m_OSSService = OSSServiceProvider.getService();
+		m_OSSService.setApplicationContext(pContext);
 	}
 
 	@Override
