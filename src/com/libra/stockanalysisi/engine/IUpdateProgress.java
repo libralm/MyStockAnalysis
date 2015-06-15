@@ -1,4 +1,4 @@
-package com.libra.stockanalysisi;
+package com.libra.stockanalysisi.engine;
 
 public interface IUpdateProgress {
 	

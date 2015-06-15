@@ -5,4 +5,6 @@ import com.libra.stockanalysisi.bean.BaseStock;
 public interface IContinousFallingStocksCallBack {
 
 	void continusFallingStocks(BaseStock[] result);
+	
+	void onFailure(Throwable pThrowable);
 }

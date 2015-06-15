@@ -10,16 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.accounts.NetworkErrorException;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.libra.stockanalysisi.IUpdateProgress;
 import com.libra.stockanalysisi.bean.BaseStock;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
 import com.libra.stockanalysisi.engine.IContinousFallingStocksCallBack;
 import com.libra.stockanalysisi.engine.IPersistenceService;
+import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
 
 @SuppressLint("SimpleDateFormat")
@@ -62,7 +63,13 @@ public class BussisceFacde {
 			@Override
 			protected BaseStock[] doInBackground(Integer... params) {
 				// TODO Auto-generated method stub
-				List<Stock[]> infoList = getStockInfoList(params[0]);
+				List<Stock[]> infoList = null;
+				try {
+					infoList = getStockInfoList(params[0]);
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					pCallBack.onFailure(e);
+				}
 				BaseStock[] stocks = caculateContinousFallingStocks(infoList);
 				return stocks;
 			}
@@ -76,28 +83,44 @@ public class BussisceFacde {
 	
 	/**
 	 * 数据更新
+	 * @throws NetworkErrorException 
 	 */
-	public void updateData(IUpdateProgress pUpdateCallback){
+	public void updateData(final IUpdateProgress pUpdateCallback){
 		m_UpdateProgressCallBack = pUpdateCallback;
-		try {
-			if(!isHolidayDay(new Date())){				
-				downloadAllBaseStocksInfo();
-			} else{
-				pUpdateCallback.onFinish();
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		new AsyncTask<Void, Void, Void>(){
 
+			@Override
+			protected Void doInBackground(Void... params) {
+				// TODO Auto-generated method stub
+				try {
+					try {
+						if(!isHolidayDay(new Date())){				
+							downloadAllBaseStocksInfo();
+						} else{
+							pUpdateCallback.onFinish();
+						}
+					} catch (NetworkErrorException e) {
+						// TODO Auto-generated catch block
+						pUpdateCallback.onFailure(e);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return null;
+			}
+			
+		}.execute();
+		
 	}
 	
 	/**
 	 * 是否为交易日
 	 * @param date
 	 * @return
+	 * @throws NetworkErrorException 
 	 */
-	private boolean isHolidayDay(Date date){
+	private boolean isHolidayDay(Date date) throws NetworkErrorException{
 		return m_NetService.isHoliday(date);
 	}
 
@@ -212,8 +235,9 @@ public class BussisceFacde {
 	 * 
 	 * @param pDays
 	 * @return
+	 * @throws NetworkErrorException 
 	 */
-	private List<Stock[]> getStockInfoList(int pDays) {
+	private List<Stock[]> getStockInfoList(int pDays) throws NetworkErrorException {
 		List<Stock[]> list = new ArrayList<Stock[]>();
 		int invailDay = 0;
 		for (int i = 0; i < pDays; i++) {

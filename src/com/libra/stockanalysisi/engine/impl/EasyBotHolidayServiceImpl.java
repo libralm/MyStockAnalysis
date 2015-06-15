@@ -13,37 +13,32 @@ import com.libra.stockanalysisi.engine.serialization.impl.EasyBotHolidayServiceS
 import com.libra.stockanalysisi.netUtils.HttpsClientUtils;
 
 public class EasyBotHolidayServiceImpl implements IHolidayService {
-	
-	private String m_Url = new String("http://www.easybots.cn/api/holiday.php?d=*");
-	
+
+	private String m_Url = new String(
+			"http://www.easybots.cn/api/holiday.php?d=*");
+
 	private HttpsClientUtils m_HttpsClientUtils;
-	
+
 	private EasyBotHolidayServiceSeralizationImpl m_SeralizationImpl;
-	
-	public EasyBotHolidayServiceImpl(){
+
+	public EasyBotHolidayServiceImpl() {
 		super();
 		m_HttpsClientUtils = new HttpsClientUtils(5000, 10000);
 		m_SeralizationImpl = new EasyBotHolidayServiceSeralizationImpl();
 	}
 
 	@Override
-	public boolean isHoliday(Date pDate) {
+	public boolean isHoliday(Date pDate) throws NetworkErrorException {
 		// TODO Auto-generated method stub
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String url = getUrl(sdf.format(pDate));
-		try {
-			String string = m_HttpsClientUtils.get(url);
-			Holiday holiday = m_SeralizationImpl.deserializationStockInfo(string);
-			return holiday.isIsHoliday();
-		} catch (NetworkErrorException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
+		String string = m_HttpsClientUtils.get(url);
+		Holiday holiday = m_SeralizationImpl.deserializationStockInfo(string);
+		return holiday.isIsHoliday();
 	}
 
-	private String getUrl(String pStrDate){
+	private String getUrl(String pStrDate) {
 		return new String(m_Url.replace("*", pStrDate));
 	}
-	
+
 }

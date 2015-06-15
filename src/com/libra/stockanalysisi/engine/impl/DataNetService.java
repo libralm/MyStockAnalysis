@@ -3,6 +3,7 @@ package com.libra.stockanalysisi.engine.impl;
 import java.io.IOException;
 import java.util.Date;
 
+import android.accounts.NetworkErrorException;
 import android.content.Context;
 
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
@@ -41,7 +42,7 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	}
 
 	@Override
-	public boolean isHoliday(Date pDate) {
+	public boolean isHoliday(Date pDate) throws NetworkErrorException {
 		// TODO Auto-generated method stub
 		return m_HolidayService.isHoliday(pDate);
 	}

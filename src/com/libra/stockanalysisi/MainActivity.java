@@ -1,5 +1,6 @@
 package com.libra.stockanalysisi;
 
+import android.accounts.NetworkErrorException;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.libra.stockanalysisi.bean.BaseStock;
 import com.libra.stockanalysisi.engine.IContinousFallingStocksCallBack;
+import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.impl.BussisceFacde;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener, IUpdateProgress, OnItemClickListener {
@@ -67,7 +69,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener, 
 			m_UpdateDialog.setCancelable(false);
 			m_UpdateDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			m_UpdateDialog.show();
-			facde.updateData(this);
+				facde.updateData(this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -84,6 +86,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener, 
 				// TODO Auto-generated method stub
 				mAdapter.setData(result);
 				Toast.makeText(MainActivity.this, "计算完成:一共"+result.length+"只股票", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onFailure(Throwable pThrowable) {
+				// TODO Auto-generated method stub
+				Toast.makeText(MainActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -169,6 +177,6 @@ public class MainActivity extends ActionBarActivity implements OnClickListener, 
 	@Override
 	public void onFailure(Throwable pThrowable) {
 		// TODO Auto-generated method stub
-		
+		Toast.makeText(this, "更新数据出错", Toast.LENGTH_SHORT).show();	
 	}
 }
