@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,7 +71,7 @@ public class BussisceFacde {
 				pCallBack.continusFallingStocks(result);
 			};
 
-		}.execute(days+1);
+		}.execute(days);
 	}
 	
 	/**
@@ -82,7 +80,7 @@ public class BussisceFacde {
 	public void updateData(IUpdateProgress pUpdateCallback){
 		m_UpdateProgressCallBack = pUpdateCallback;
 		try {
-			if(isVaildDay(new Date())){				
+			if(!isHolidayDay(new Date())){				
 				downloadAllBaseStocksInfo();
 			} else{
 				pUpdateCallback.onFinish();
@@ -99,14 +97,8 @@ public class BussisceFacde {
 	 * @param date
 	 * @return
 	 */
-	private boolean isVaildDay(Date date){
-		Calendar calendar = Calendar.getInstance(Locale.CHINA);
-		calendar.setTime(date);
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		if(dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY){
-			return false;
-		}
-		return true;
+	private boolean isHolidayDay(Date date){
+		return m_NetService.isHoliday(date);
 	}
 
 	/**
@@ -126,7 +118,7 @@ public class BussisceFacde {
 			}
 			int length = stocks.length;
 			for(int j =0; j < length; j++){
-				String gid = stocks[i].getGid();
+				String gid = stocks[j].getGid();
 				if(gidStockMap.get(gid) == null){
 					Stock[] sameGidStocks = new Stock[size];
 					gidStockMap.put(gid, sameGidStocks);
@@ -139,13 +131,66 @@ public class BussisceFacde {
 			boolean isContinueFallingFlag = true;
 			Stock[] stocks = gidStockMap.get(string);
 			int length = stocks.length;
-			for(int i = 0; i < length-1; i++){
-				if(stocks[i+1] == null){
+			for(int i = 0; i < length; i++){
+				if(stocks[i] == null){
 					isContinueFallingFlag = false;
 					break;
 				}
-				double result = stocks[i].getYestodEndPri() - stocks[i+1].getYestodEndPri();
-				if(result < 0){
+				double result = stocks[i].getYestodEndPri() - stocks[i].getNowPri();
+				if(result > 0 ){
+					continue;
+				}
+				isContinueFallingFlag = false;
+				break;
+			}
+			if(isContinueFallingFlag){
+				BaseStock baseStock = new BaseStock();
+				baseStock.setGid(string);
+				baseStock.setName(stocks[0].getName());
+				list.add(baseStock);
+			}
+			isContinueFallingFlag = true;
+		}
+		return list.toArray(new BaseStock[list.size()]);
+	}
+	
+	/**
+	 * 计算连续上涨的股票
+	 * 
+	 * @param pStockInfoList
+	 */
+	private BaseStock[] caculateContinousRiseStocks(List<Stock[]> pStockInfoList) {
+		// TODO Auto-generated method stub
+		List<BaseStock> list = new ArrayList<BaseStock>();
+		int size = pStockInfoList.size();
+		Map<String, Stock[]> gidStockMap = new HashMap<String, Stock[]>();
+		for (int i = 0; i < size; i++) {
+			Stock[] stocks = pStockInfoList.get(i);
+			if(stocks == null){
+				continue;
+			}
+			int length = stocks.length;
+			for(int j =0; j < length; j++){
+				String gid = stocks[j].getGid();
+				if(gidStockMap.get(gid) == null){
+					Stock[] sameGidStocks = new Stock[size];
+					gidStockMap.put(gid, sameGidStocks);
+				}
+				gidStockMap.get(gid)[i] = stocks[j];
+			}
+		}
+		Set<String> gidKeySet = gidStockMap.keySet();
+		for (String string : gidKeySet) {
+			boolean isContinueFallingFlag = true;
+			Stock[] stocks = gidStockMap.get(string);
+			int length = stocks.length;
+			for(int i = 0; i < length; i++){
+				if(stocks[i] == null){
+					isContinueFallingFlag = false;
+					break;
+				}
+				double result = stocks[i].getYestodEndPri() - stocks[i].getNowPri();
+				if(result < 0 ){
 					continue;
 				}
 				isContinueFallingFlag = false;
@@ -170,15 +215,24 @@ public class BussisceFacde {
 	 */
 	private List<Stock[]> getStockInfoList(int pDays) {
 		List<Stock[]> list = new ArrayList<Stock[]>();
+		int invailDay = 0;
 		for (int i = 0; i < pDays; i++) {
 			Date d = new Date();
 			Stock[] stock = null;
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String strDate = df.format(new Date(d.getTime()
-					- (i * 24 * 60 * 60 * 1000)));
+					- ((i+invailDay) * 24 * 60 * 60 * 1000)));
 			Date date2;
 			try {
 				date2 = df.parse(strDate);
+				boolean vaildDay = !isHolidayDay(date2);
+				while(!vaildDay){
+					invailDay++;
+					strDate = df.format(new Date(d.getTime()
+							- ((i+invailDay) * 24 * 60 * 60 * 1000)));
+					date2 = df.parse(strDate);
+					vaildDay = !isHolidayDay(date2);
+				}
 				stock = readDetailStocksInfo(date2);
 				list.add(stock);
 			} catch (ParseException e) {

@@ -83,7 +83,7 @@ public class MainActivity extends ActionBarActivity implements OnClickListener, 
 			public void continusFallingStocks(BaseStock[] result) {
 				// TODO Auto-generated method stub
 				mAdapter.setData(result);
-				Toast.makeText(MainActivity.this, "计算完成", Toast.LENGTH_SHORT).show();
+				Toast.makeText(MainActivity.this, "计算完成:一共"+result.length+"只股票", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
