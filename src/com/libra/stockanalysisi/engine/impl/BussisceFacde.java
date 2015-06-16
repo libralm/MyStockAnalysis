@@ -58,10 +58,10 @@ public class BussisceFacde {
 	 */
 	public void continuousFalling(int days,
 			final IContinousStateStocksCallBack pCallBack) {
-		new AsyncTask<Integer, Void, BaseStock[]>() {
+		new AsyncTask<Integer, Void, Stock[]>() {
 
 			@Override
-			protected BaseStock[] doInBackground(Integer... params) {
+			protected Stock[] doInBackground(Integer... params) {
 				// TODO Auto-generated method stub
 				List<Stock[]> infoList = null;
 				try {
@@ -70,11 +70,11 @@ public class BussisceFacde {
 					// TODO Auto-generated catch block
 					pCallBack.onFailure(e);
 				}
-				BaseStock[] stocks = caculateContinousFallingStocks(infoList);
+				Stock[] stocks = caculateContinousFallingStocks(infoList);
 				return stocks;
 			}
 
-			protected void onPostExecute(BaseStock[] result) {
+			protected void onPostExecute(Stock[] result) {
 				pCallBack.continusFallingStocks(result);
 			};
 
@@ -89,10 +89,10 @@ public class BussisceFacde {
 	 */
 	public void continuousRise(int days,
 			final IContinousStateStocksCallBack pCallBack) {
-		new AsyncTask<Integer, Void, BaseStock[]>() {
+		new AsyncTask<Integer, Void, Stock[]>() {
 
 			@Override
-			protected BaseStock[] doInBackground(Integer... params) {
+			protected Stock[] doInBackground(Integer... params) {
 				// TODO Auto-generated method stub
 				List<Stock[]> infoList = null;
 				try {
@@ -101,11 +101,11 @@ public class BussisceFacde {
 					// TODO Auto-generated catch block
 					pCallBack.onFailure(e);
 				}
-				BaseStock[] stocks = caculateContinousRiseStocks(infoList);
+				Stock[] stocks = caculateContinousRiseStocks(infoList);
 				return stocks;
 			}
 
-			protected void onPostExecute(BaseStock[] result) {
+			protected void onPostExecute(Stock[] result) {
 				pCallBack.continusFallingStocks(result);
 			};
 
@@ -160,7 +160,7 @@ public class BussisceFacde {
 	 * 
 	 * @param pStockInfoList
 	 */
-	private BaseStock[] caculateContinousFallingStocks(List<Stock[]> pStockInfoList) {
+	private Stock[] caculateContinousFallingStocks(List<Stock[]> pStockInfoList) {
 		// TODO Auto-generated method stub
 		List<BaseStock> list = new ArrayList<BaseStock>();
 		int size = pStockInfoList.size();
@@ -198,14 +198,12 @@ public class BussisceFacde {
 				break;
 			}
 			if(isContinueFallingFlag){
-				BaseStock baseStock = new BaseStock();
-				baseStock.setGid(string);
-				baseStock.setName(stocks[0].getName());
-				list.add(baseStock);
+				Stock stock = new Stock(string, stocks[0].getName(), stocks[0].getTodayStartPri(), stocks[0].getYestodEndPri(), stocks[0].getNowPri(), stocks[0].getTodayMax(), stocks[0].getTodayMin(), stocks[0].getCompetitivePri(), stocks[0].getReservePri(), stocks[0].getTraNumber(), stocks[0].getTraAmount(), stocks[0].getDate());
+				list.add(stock);
 			}
 			isContinueFallingFlag = true;
 		}
-		return list.toArray(new BaseStock[list.size()]);
+		return list.toArray(new Stock[list.size()]);
 	}
 	
 	/**
@@ -213,7 +211,7 @@ public class BussisceFacde {
 	 * 
 	 * @param pStockInfoList
 	 */
-	private BaseStock[] caculateContinousRiseStocks(List<Stock[]> pStockInfoList) {
+	private Stock[] caculateContinousRiseStocks(List<Stock[]> pStockInfoList) {
 		// TODO Auto-generated method stub
 		List<BaseStock> list = new ArrayList<BaseStock>();
 		int size = pStockInfoList.size();
@@ -251,14 +249,12 @@ public class BussisceFacde {
 				break;
 			}
 			if(isContinueFallingFlag){
-				BaseStock baseStock = new BaseStock();
-				baseStock.setGid(string);
-				baseStock.setName(stocks[0].getName());
-				list.add(baseStock);
+				Stock stock = new Stock(string, stocks[0].getName(), stocks[0].getTodayStartPri(), stocks[0].getYestodEndPri(), stocks[0].getNowPri(), stocks[0].getTodayMax(), stocks[0].getTodayMin(), stocks[0].getCompetitivePri(), stocks[0].getReservePri(), stocks[0].getTraNumber(), stocks[0].getTraAmount(), stocks[0].getDate());
+				list.add(stock);
 			}
 			isContinueFallingFlag = true;
 		}
-		return list.toArray(new BaseStock[list.size()]);
+		return list.toArray(new Stock[list.size()]);
 	}
 
 	/**
