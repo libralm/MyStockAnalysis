@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tv"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
+    android:layout_height="wrap_content"
+    >
 
-</TextView>
+    <TextView
+        android:id="@+id/tv_StockName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:padding="5dp"
+        >
+    </TextView>
+    <TextView 
+        android:id="@+id/tv_Gid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:layout_below="@id/tv_StockName"
+        android:padding="5dp"
+        />
+    <TextView 
+        android:id="@+id/tv_NowPri"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        />
+</RelativeLayout>

@@ -2,6 +2,7 @@ package com.libra.stockanalysisi;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
@@ -20,7 +21,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.libra.stockanalysisi.bean.BaseStock;
+import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.impl.BussisceFacde;
@@ -38,6 +39,12 @@ public class MainActivity extends ActionBarActivity implements
 	private ProgressDialog m_UpdateDialog,m_CaculateProgress;
 
 	private MyAdapter mAdapter;
+	
+	private final int FALLING_STATE = 1;
+	
+	private final int RISE_STATE = 0;
+	
+	private int m_CurState = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,13 +113,13 @@ public class MainActivity extends ActionBarActivity implements
 
 	class MyAdapter extends BaseAdapter {
 
-		private BaseStock[] mData;
+		private Stock[] mData;
 
 		public MyAdapter() {
 
 		}
 
-		public void setData(BaseStock[] pData) {
+		public void setData(Stock[] pData) {
 			mData = pData;
 			notifyDataSetChanged();
 		}
@@ -140,24 +147,37 @@ public class MainActivity extends ActionBarActivity implements
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// TODO Auto-generated method stub
-			BaseStock baseStock = mData[position];
+			Stock baseStock = mData[position];
 			if (convertView == null) {
 				convertView = LayoutInflater.from(MainActivity.this).inflate(
 						R.layout.detail_listview_content, null);
 			}
 			if (convertView.getTag() == null) {
 				ViewHolder holder = new ViewHolder();
-				holder.tx = (TextView) convertView.findViewById(R.id.tv);
+				holder.tx_Gid = (TextView) convertView.findViewById(R.id.tv_Gid);
+				holder.tx_Name = (TextView) convertView.findViewById(R.id.tv_StockName);
+				holder.tx_NowPri = (TextView) convertView.findViewById(R.id.tv_NowPri);
 				convertView.setTag(holder);
 			}
 			ViewHolder holder = (ViewHolder) convertView.getTag();
-			holder.tx.setText(baseStock.getGid() + "(" + baseStock.getName()
-					+ ")");
+			holder.tx_Gid.setText(baseStock.getGid());
+			holder.tx_Name.setText(baseStock.getName());
+			holder.tx_NowPri.setText(baseStock.getNowPri()+"");
+			if(m_CurState == FALLING_STATE){				
+				if(baseStock.getNowPri() == 0){
+					holder.tx_NowPri.setText("停牌");
+					holder.tx_NowPri.setBackgroundColor(Color.GRAY);
+				} else{					
+					holder.tx_NowPri.setBackgroundColor(Color.parseColor("#FF2E8B57"));
+				}
+			} else if(m_CurState == RISE_STATE){
+				holder.tx_NowPri.setBackgroundColor(Color.RED);
+			}
 			return convertView;
 		}
 
 		class ViewHolder {
-			TextView tx;
+			TextView tx_Gid,tx_Name,tx_NowPri;
 		}
 	}
 
@@ -184,8 +204,9 @@ public class MainActivity extends ActionBarActivity implements
 					new IContinousStateStocksCallBack() {
 
 						@Override
-						public void continusFallingStocks(BaseStock[] result) {
+						public void continusFallingStocks(Stock[] result) {
 							// TODO Auto-generated method stub
+							m_CurState = FALLING_STATE;
 							mAdapter.setData(result);
 							Toast.makeText(MainActivity.this,
 									"一共" + result.length + "只股票下跌",
@@ -206,8 +227,9 @@ public class MainActivity extends ActionBarActivity implements
 					new IContinousStateStocksCallBack() {
 
 						@Override
-						public void continusFallingStocks(BaseStock[] result) {
+						public void continusFallingStocks(Stock[] result) {
 							// TODO Auto-generated method stub
+							m_CurState = RISE_STATE;
 							mAdapter.setData(result);
 							Toast.makeText(MainActivity.this,
 									"一共" + result.length + "只股票上涨",
