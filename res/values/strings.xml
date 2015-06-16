@@ -4,6 +4,6 @@
     <string name="app_name">股票抄底</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">更新数据</string>
-    <string name="continueFallingDays">连续下跌的天数</string>
-
+    <string name="continueFallingDays">连跌天数</string>
+	<string name="continueRiseDays">连涨天数</string>
 </resources>

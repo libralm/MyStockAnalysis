@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,26 +8,47 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.libra.stockanalysisi.MainActivity" >
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/continueFallingDays" />
-    <EditText 
-        android:id="@+id/et_continusFallingDays"
+    <LinearLayout
+        android:id="@+id/lin_bottom" 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+        <EditText 
+        android:id="@+id/et_continusFallingDays"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:inputType="numberSigned"
+        android:hint="@string/continueFallingDays"
+        android:textColorHint="#4c00ff00"
+        android:textColor="#ff32CD32"
+        android:imeOptions="actionSearch"
         />
-	<Button 
-	    android:id="@+id/btn_submit"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="开始计算"
-	    />
+        <EditText 
+        android:id="@+id/et_continusRiseDays"
+         android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:inputType="numberSigned"
+        android:hint="@string/continueRiseDays"
+        android:textColorHint="#4cff0000"
+        android:textColor="#FFEE2C2C"
+        android:imeOptions="actionSearch"
+        />
+    </LinearLayout>
+    
+<!-- 	<Button  -->
+<!-- 	    android:id="@+id/btn_submit" -->
+<!-- 	    android:layout_width="wrap_content" -->
+<!-- 	    android:layout_height="wrap_content" -->
+<!-- 	    android:text="开始计算" -->
+<!-- 	    /> -->
 	<ListView 
 	    android:id="@+id/list"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
+	    android:layout_above="@id/lin_bottom"
 	    ></ListView>
-</LinearLayout>
+</RelativeLayout>
