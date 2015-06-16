@@ -2,7 +2,7 @@ package com.libra.stockanalysisi.engine;
 
 import com.libra.stockanalysisi.bean.BaseStock;
 
-public interface IContinousFallingStocksCallBack {
+public interface IContinousStateStocksCallBack {
 
 	void continusFallingStocks(BaseStock[] result);
 	
