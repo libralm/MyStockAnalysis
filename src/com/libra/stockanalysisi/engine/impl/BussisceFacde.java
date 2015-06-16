@@ -18,7 +18,7 @@ import android.os.AsyncTask;
 import com.libra.stockanalysisi.bean.BaseStock;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
-import com.libra.stockanalysisi.engine.IContinousFallingStocksCallBack;
+import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
@@ -57,7 +57,7 @@ public class BussisceFacde {
 	 * @return
 	 */
 	public void continuousFalling(int days,
-			final IContinousFallingStocksCallBack pCallBack) {
+			final IContinousStateStocksCallBack pCallBack) {
 		new AsyncTask<Integer, Void, BaseStock[]>() {
 
 			@Override
@@ -71,6 +71,37 @@ public class BussisceFacde {
 					pCallBack.onFailure(e);
 				}
 				BaseStock[] stocks = caculateContinousFallingStocks(infoList);
+				return stocks;
+			}
+
+			protected void onPostExecute(BaseStock[] result) {
+				pCallBack.continusFallingStocks(result);
+			};
+
+		}.execute(days);
+	}
+	
+	/**
+	 * 连续下跌的股票
+	 * 
+	 * @param days
+	 * @return
+	 */
+	public void continuousRise(int days,
+			final IContinousStateStocksCallBack pCallBack) {
+		new AsyncTask<Integer, Void, BaseStock[]>() {
+
+			@Override
+			protected BaseStock[] doInBackground(Integer... params) {
+				// TODO Auto-generated method stub
+				List<Stock[]> infoList = null;
+				try {
+					infoList = getStockInfoList(params[0]);
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					pCallBack.onFailure(e);
+				}
+				BaseStock[] stocks = caculateContinousRiseStocks(infoList);
 				return stocks;
 			}
 
