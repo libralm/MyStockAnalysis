@@ -49,7 +49,7 @@ public class BussisceFacde {
 	public int getStocksNumber(){
 		return readAllBaseStockInfo().length;
 	}
-
+	
 	/**
 	 * 连续下跌的股票
 	 * 

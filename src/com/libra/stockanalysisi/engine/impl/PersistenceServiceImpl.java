@@ -5,8 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -14,6 +13,8 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Environment;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.libra.stockanalysisi.bean.BaseStock;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.IPersistenceService;
@@ -24,7 +25,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 
 	private final String M_DIRNAME = "Stock";
 
-	private final String M_BASESTOCK_INFO = "basestock.txt";
+	private final String M_BASESTOCK_INFO = "basestock";
 
 	public PersistenceServiceImpl() {
 		// TODO Auto-generated constructor stub
@@ -36,7 +37,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 		// TODO Auto-generated method stub
 		m_SavePathFile = new File(Environment.getExternalStorageDirectory()
 				.getAbsolutePath() + "/" + M_DIRNAME);
-		if(!m_SavePathFile.exists()){
+		if (!m_SavePathFile.exists()) {
 			m_SavePathFile.mkdirs();
 		}
 	}
@@ -50,16 +51,16 @@ class PersistenceServiceImpl implements IPersistenceService {
 			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
 				FileOutputStream fis;
-				ObjectOutputStream oos;
 				File file = new File(m_SavePathFile, M_BASESTOCK_INFO);
 				try {
-					if(!file.exists()){
+					if (!file.exists()) {
 						file.createNewFile();
 					}
+					Gson gson = new GsonBuilder().create();
+					String json = gson.toJson(pStocks);
+					byte[] bytes = json.getBytes();
 					fis = new FileOutputStream(file);
-					oos = new ObjectOutputStream(fis);
-					oos.writeObject(pStocks);
-					oos.close();
+					fis.write(bytes);
 					fis.close();
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -85,16 +86,16 @@ class PersistenceServiceImpl implements IPersistenceService {
 				// TODO Auto-generated method stub
 				String strDate = null;
 				if (pStocks.length > 0) {
-					for(int i=0; i<pStocks.length; i++){
-						Date date = new Date();
-						SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-						strDate = format.format(date);
-					}
+					Date date = new Date();
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+					strDate = format.format(date);
 				}
+				Gson gson = new GsonBuilder().create();
+				String json = gson.toJson(pStocks);
+				byte[] jsonBytes = json.getBytes();
 				FileOutputStream fos;
-				ObjectOutputStream oos;
 				File file = new File(m_SavePathFile, strDate);
-				if(!file.exists()){
+				if (!file.exists()) {
 					try {
 						file.createNewFile();
 					} catch (IOException e) {
@@ -104,9 +105,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 				}
 				try {
 					fos = new FileOutputStream(file);
-					oos = new ObjectOutputStream(fos);
-					oos.writeObject(pStocks);
-					oos.close();
+					fos.write(jsonBytes);
 					fos.close();
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -118,7 +117,6 @@ class PersistenceServiceImpl implements IPersistenceService {
 				return null;
 			}
 		}.execute();
-		
 
 	}
 
@@ -126,23 +124,27 @@ class PersistenceServiceImpl implements IPersistenceService {
 	public BaseStock[] readAllBaseStockInfo() {
 		// TODO Auto-generated method stub
 		FileInputStream fis;
-		ObjectInputStream ois;
 		BaseStock[] baseStocks = null;
 		File file = new File(m_SavePathFile, M_BASESTOCK_INFO);
 		try {
+			Gson gson = new GsonBuilder().create();
 			fis = new FileInputStream(file);
-			ois = new ObjectInputStream(fis);
-			baseStocks = (BaseStock[]) ois.readObject();
-			ois.close();
+			InputStreamReader isr = new InputStreamReader(fis);
+			int length = -1;
+			char[] buffer = new char[1024];
+			StringBuffer sb = new StringBuffer();
+			while ((length = isr.read(buffer)) != -1) {
+				sb.append(buffer, 0, length);
+			}
+			String json = sb.toString();
+			baseStocks = gson.fromJson(json, BaseStock[].class);
+			isr.close();
 			fis.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO: handle exception
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return baseStocks;
@@ -154,23 +156,27 @@ class PersistenceServiceImpl implements IPersistenceService {
 		// TODO Auto-generated method stub
 		String strDate = new SimpleDateFormat("yyyy-MM-dd").format(pStockDate);
 		FileInputStream fis;
-		ObjectInputStream ois;
 		Stock[] stocks = null;
+		Gson gson = new GsonBuilder().create();
 		File file = new File(m_SavePathFile, strDate);
 		try {
 			fis = new FileInputStream(file);
-			ois = new ObjectInputStream(fis);
-			stocks = (Stock[]) ois.readObject();
-			ois.close();
+			InputStreamReader isr = new InputStreamReader(fis);
+			int length = -1;
+			char[] buffer = new char[1024];
+			StringBuffer sb = new StringBuffer();
+			while ((length = isr.read(buffer)) != -1) {
+				sb.append(buffer, 0, length);
+			}
+			String json = sb.toString();
+			stocks = gson.fromJson(json, Stock[].class);
+			isr.close();
 			fis.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO: handle exception
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return stocks;
