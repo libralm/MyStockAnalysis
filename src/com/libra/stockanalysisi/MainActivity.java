@@ -1,5 +1,7 @@
 package com.libra.stockanalysisi;
 
+import java.text.DecimalFormat;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -34,7 +36,7 @@ public class MainActivity extends ActionBarActivity implements
 
 	private ListView m_LV;
 
-	private BussisceFacde facde;
+	private BussisceFacde m_Facde;
 
 	private ProgressDialog m_UpdateDialog,m_CaculateProgress;
 
@@ -48,7 +50,7 @@ public class MainActivity extends ActionBarActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		facde = new BussisceFacde(this);
+		m_Facde = new BussisceFacde(this);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 	m_FallingET = (EditText) findViewById(R.id.et_continusFallingDays);
@@ -87,7 +89,7 @@ public class MainActivity extends ActionBarActivity implements
 			m_UpdateDialog.setCancelable(false);
 			m_UpdateDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			m_UpdateDialog.show();
-			facde.updateData(this);
+			m_Facde.updateData(this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -114,6 +116,8 @@ public class MainActivity extends ActionBarActivity implements
 	class MyAdapter extends BaseAdapter {
 
 		private Stock[] mData;
+		
+		DecimalFormat mDF = new DecimalFormat("#0.00");
 
 		public MyAdapter() {
 
@@ -157,6 +161,7 @@ public class MainActivity extends ActionBarActivity implements
 				holder.tx_Gid = (TextView) convertView.findViewById(R.id.tv_Gid);
 				holder.tx_Name = (TextView) convertView.findViewById(R.id.tv_StockName);
 				holder.tx_NowPri = (TextView) convertView.findViewById(R.id.tv_NowPri);
+				holder.tv_Percent = (TextView) convertView.findViewById(R.id.tv_Percent);
 				convertView.setTag(holder);
 			}
 			ViewHolder holder = (ViewHolder) convertView.getTag();
@@ -165,19 +170,22 @@ public class MainActivity extends ActionBarActivity implements
 			holder.tx_NowPri.setText(baseStock.getNowPri()+"");
 			if(m_CurState == FALLING_STATE){				
 				if(baseStock.getNowPri() == 0){
-					holder.tx_NowPri.setText("停牌");
-					holder.tx_NowPri.setBackgroundColor(Color.GRAY);
+					holder.tv_Percent.setText("停牌");
+					holder.tx_NowPri.setText(mDF.format(baseStock.getYestodEndPri())+"");
+					holder.tv_Percent.setBackgroundColor(Color.GRAY);
 				} else{					
-					holder.tx_NowPri.setBackgroundColor(Color.parseColor("#FF2E8B57"));
+					holder.tv_Percent.setBackgroundColor(Color.parseColor("#FF2E8B57"));
+					holder.tv_Percent.setText(mDF.format((baseStock.getNowPri()-baseStock.getYestodEndPri())/baseStock.getYestodEndPri()*100)+"%");
 				}
 			} else if(m_CurState == RISE_STATE){
-				holder.tx_NowPri.setBackgroundColor(Color.RED);
+				holder.tv_Percent.setBackgroundColor(Color.RED);
+				holder.tv_Percent.setText(mDF.format((baseStock.getNowPri()-baseStock.getYestodEndPri())/baseStock.getYestodEndPri()*100)+"%");
 			}
 			return convertView;
 		}
 
 		class ViewHolder {
-			TextView tx_Gid,tx_Name,tx_NowPri;
+			TextView tx_Gid,tx_Name,tx_NowPri,tv_Percent;
 		}
 	}
 
@@ -200,7 +208,7 @@ public class MainActivity extends ActionBarActivity implements
 		int id = v.getId();
 		String days =v.getText().toString();
 		if(id == R.id.et_continusFallingDays){
-			facde.continuousFalling(Integer.parseInt(days),
+			m_Facde.continuousFalling(Integer.parseInt(days),
 					new IContinousStateStocksCallBack() {
 
 						@Override
@@ -223,7 +231,7 @@ public class MainActivity extends ActionBarActivity implements
 						}
 					});
 		} else if(id == R.id.et_continusRiseDays){
-			facde.continuousRise(Integer.parseInt(days),
+			m_Facde.continuousRise(Integer.parseInt(days),
 					new IContinousStateStocksCallBack() {
 
 						@Override
