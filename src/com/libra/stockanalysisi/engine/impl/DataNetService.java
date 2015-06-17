@@ -9,23 +9,27 @@ import android.content.Context;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
 import com.libra.stockanalysisi.engine.HolidayCallBack;
 import com.libra.stockanalysisi.engine.IAllStockIDService;
+import com.libra.stockanalysisi.engine.ITimeService;
 import com.libra.stockanalysisi.engine.IHolidayService;
 import com.libra.stockanalysisi.engine.IStockInfoService;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
 
-class DataNetService implements IAllStockIDService,IStockInfoService,IHolidayService{
+class DataNetService implements IAllStockIDService,IStockInfoService,IHolidayService,ITimeService{
 	
 	private IAllStockIDService m_AllStockID;
 	
 	private IStockInfoService m_StockInfo;
 	
 	private IHolidayService m_HolidayService;
+	
+	private ITimeService m_TimeService;
 
 	DataNetService(Context pContext){
 		super();
 		m_AllStockID = new EastRichesAllStockIdServiceImpl();
 		m_StockInfo = new FreeStockInfoServiceImpl();
 		m_HolidayService = new EasyBotHolidayServiceImpl();
+		m_TimeService = new BeijingTimeSeviceImpl();
 	}
 
 	@Override
@@ -45,6 +49,12 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	public boolean isHoliday(Date pDate) throws NetworkErrorException {
 		// TODO Auto-generated method stub
 		return m_HolidayService.isHoliday(pDate);
+	}
+
+	@Override
+	public boolean isDealTime() throws IOException {
+		// TODO Auto-generated method stub
+		return m_TimeService.isDealTime();
 	}
 	
 	
