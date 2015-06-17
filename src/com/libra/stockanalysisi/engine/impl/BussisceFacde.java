@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +32,12 @@ public class BussisceFacde {
 	private IPersistenceService m_PersistenceService;
 
 	private IUpdateProgress m_UpdateProgressCallBack;
-	
+
+	private Context m_Context;
+
 	public BussisceFacde(Context pContext) {
 		super();
+		m_Context = pContext;
 		m_NetService = new DataNetService(pContext);
 		m_PersistenceService = new PersistenceServiceImpl();
 	}
@@ -140,14 +144,14 @@ public class BussisceFacde {
 		new AsyncTask<Void, Void, Void>() {
 
 			Throwable mThrowable;
-			
+
 			@Override
 			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
 				try {
-						if (!isHolidayDay(new Date()) && m_NetService.isDealTime()) {
-							downloadAllBaseStocksInfo();
-						}
+					if (!isHolidayDay(new Date()) && m_NetService.isDealTime()) {
+						downloadAllBaseStocksInfo();
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -161,12 +165,12 @@ public class BussisceFacde {
 			}
 
 			protected void onPostExecute(Void result) {
-				if(mThrowable != null){					
+				if (mThrowable != null) {
 					pUpdateCallback.onFailure(mThrowable);
 					return;
 				}
 			};
-			
+
 		}.execute();
 
 	}
@@ -340,36 +344,59 @@ public class BussisceFacde {
 	private void downloadAllBaseStocksInfo() throws IOException {
 		m_NetService.queryAllStockID(new BaseStockInfoCallBack() {
 
+			@SuppressLint("NewApi")
 			@Override
 			public void onSuccess(BaseStock[] pBaseStocks) {
 				// TODO Auto-generated method stub
 				m_PersistenceService.saveAllBaseStockInfo(pBaseStocks);
-				downloadAllStockDetailInfo(pBaseStocks);
+				final int length = pBaseStocks.length;
+				final List<Stock> list = new ArrayList<Stock>();
+				int splitNum = 7;
+				int avgNum = length / splitNum;
+				for (int i = 0; i < splitNum - 1; i++) {
+					BaseStock[] stocks = Arrays.copyOfRange(pBaseStocks, avgNum
+							* i, avgNum * (i + 1));
+					new AsyncTask<BaseStock[], Void, Void>() {
+
+						@Override
+						protected Void doInBackground(BaseStock[]... params) {
+							// TODO Auto-generated method stub
+							downloadAllStockDetailInfo(params[0], list, length);
+							return null;
+						}
+
+					}.execute(stocks);
+				}
+				BaseStock[] stocks2 = Arrays.copyOfRange(pBaseStocks, avgNum
+						* (splitNum - 1), length);
+				downloadAllStockDetailInfo(stocks2, list, length);
 			}
 		});
 	}
 
-	private void downloadAllStockDetailInfo(BaseStock[] pBaseStocks) {
-		final int length = pBaseStocks.length;
-		final List<Stock> list = new ArrayList<Stock>();
+	private void downloadAllStockDetailInfo(BaseStock[] pBaseStocks,
+			final List<Stock> pList, final int pBaseStocksLength) {
+		DataNetService netService = new DataNetService(m_Context);
 		for (BaseStock baseStock : pBaseStocks) {
 			String gid = baseStock.getGid();
-			m_NetService.queryStock(gid, new StockInfoCallBack() {
+			netService.queryStock(gid, new StockInfoCallBack() {
 
 				@Override
 				public void onSuccess(Stock pStock) {
 					// TODO Auto-generated method stub
-					list.add(pStock);
+					pList.add(pStock);
+					System.out.println(pList.size());
 				}
 
 				@Override
 				public void onFinish() {
 					// TODO Auto-generated method stub
-					int progress = caculateProgress(list.size(), length);
+					int progress = caculateProgress(pList.size(),
+							pBaseStocksLength);
 					m_UpdateProgressCallBack.update(progress);
-					if (list.size() == length) {
-						m_PersistenceService.saveAllStocksDetailInfo(list
-								.toArray(new Stock[length]));
+					if (pList.size() == pBaseStocksLength) {
+						m_PersistenceService.saveAllStocksDetailInfo(pList
+								.toArray(new Stock[pBaseStocksLength]));
 						m_UpdateProgressCallBack.onFinish();
 					}
 				}
