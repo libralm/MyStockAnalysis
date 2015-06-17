@@ -23,7 +23,7 @@ public class EasyBotHolidayServiceImpl implements IHolidayService {
 
 	public EasyBotHolidayServiceImpl() {
 		super();
-		m_HttpsClientUtils = new HttpsClientUtils(5000, 10000);
+		m_HttpsClientUtils = new HttpsClientUtils(15000, 100000);
 		m_SeralizationImpl = new EasyBotHolidayServiceSeralizationImpl();
 	}
 
