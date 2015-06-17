@@ -1,6 +1,8 @@
 package com.libra.stockanalysisi.engine.impl;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import android.accounts.NetworkErrorException;
 import android.annotation.SuppressLint;
@@ -45,11 +48,11 @@ public class BussisceFacde {
 	private BaseStock[] readAllBaseStockInfo() {
 		return m_PersistenceService.readAllBaseStockInfo();
 	}
-	
-	public int getStocksNumber(){
+
+	public int getStocksNumber() {
 		return readAllBaseStockInfo().length;
 	}
-	
+
 	/**
 	 * 连续下跌的股票
 	 * 
@@ -60,27 +63,40 @@ public class BussisceFacde {
 			final IContinousStateStocksCallBack pCallBack) {
 		new AsyncTask<Integer, Void, Stock[]>() {
 
+			Throwable mThrowable = null;
+
 			@Override
 			protected Stock[] doInBackground(Integer... params) {
 				// TODO Auto-generated method stub
 				List<Stock[]> infoList = null;
 				try {
+					if (!isDealTime()) {
+						params[0]--;
+					}
 					infoList = getStockInfoList(params[0]);
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
-					pCallBack.onFailure(e);
+					mThrowable = e;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					mThrowable = e;
 				}
 				Stock[] stocks = caculateContinousFallingStocks(infoList);
 				return stocks;
 			}
 
 			protected void onPostExecute(Stock[] result) {
+				if (mThrowable != null) {
+					pCallBack.onFailure(mThrowable);
+					return;
+				}
 				pCallBack.continusFallingStocks(result);
 			};
 
 		}.execute(days);
 	}
-	
+
 	/**
 	 * 连续下跌的股票
 	 * 
@@ -96,10 +112,15 @@ public class BussisceFacde {
 				// TODO Auto-generated method stub
 				List<Stock[]> infoList = null;
 				try {
+					if (!isDealTime()) {
+						params[0]--;
+					}
 					infoList = getStockInfoList(params[0]);
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					pCallBack.onFailure(e);
+				} catch (IOException e) {
+					// TODO: handle exception
 				}
 				Stock[] stocks = caculateContinousRiseStocks(infoList);
 				return stocks;
@@ -111,23 +132,24 @@ public class BussisceFacde {
 
 		}.execute(days);
 	}
-	
+
 	/**
 	 * 数据更新
-	 * @throws NetworkErrorException 
+	 * 
+	 * @throws NetworkErrorException
 	 */
-	public void updateData(final IUpdateProgress pUpdateCallback){
+	public void updateData(final IUpdateProgress pUpdateCallback) {
 		m_UpdateProgressCallBack = pUpdateCallback;
-		new AsyncTask<Void, Void, Void>(){
+		new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
 				try {
 					try {
-						if(!isHolidayDay(new Date())){				
+						if (!isHolidayDay(new Date()) && isDealTime()) {
 							downloadAllBaseStocksInfo();
-						} else{
+						} else {
 							pUpdateCallback.onFinish();
 						}
 					} catch (NetworkErrorException e) {
@@ -140,18 +162,44 @@ public class BussisceFacde {
 				}
 				return null;
 			}
-			
+
 		}.execute();
-		
+
 	}
-	
+
+	/**
+	 * 当前时间是否为交易时间
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	@SuppressWarnings("deprecation")
+	private boolean isDealTime() throws IOException {
+		// TODO Auto-generated method stub
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT+8")); // 时区设置
+		URL url = new URL("http://www.bjtime.cn");// 取得资源对象
+		URLConnection uc = url.openConnection();// 生成连接对象
+		uc.connect(); // 发出连接
+		long ld = uc.getDate(); // 取得网站日期时间（时间戳）
+		Date date = new Date(ld); // 转换为标准时间对象
+		int year = date.getYear();
+		int month = date.getMonth();
+		int day = date.getDate();
+		Date dealTime = new Date(year, month, day, 8, 24);
+		if (date.after(dealTime)) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * 是否为交易日
+	 * 
 	 * @param date
 	 * @return
-	 * @throws NetworkErrorException 
+	 * @throws NetworkErrorException
 	 */
-	private boolean isHolidayDay(Date date) throws NetworkErrorException{
+	private boolean isHolidayDay(Date date) throws NetworkErrorException {
 		return m_NetService.isHoliday(date);
 	}
 
@@ -167,13 +215,13 @@ public class BussisceFacde {
 		Map<String, Stock[]> gidStockMap = new HashMap<String, Stock[]>();
 		for (int i = 0; i < size; i++) {
 			Stock[] stocks = pStockInfoList.get(i);
-			if(stocks == null){
+			if (stocks == null) {
 				continue;
 			}
 			int length = stocks.length;
-			for(int j =0; j < length; j++){
+			for (int j = 0; j < length; j++) {
 				String gid = stocks[j].getGid();
-				if(gidStockMap.get(gid) == null){
+				if (gidStockMap.get(gid) == null) {
 					Stock[] sameGidStocks = new Stock[size];
 					gidStockMap.put(gid, sameGidStocks);
 				}
@@ -185,27 +233,35 @@ public class BussisceFacde {
 			boolean isContinueFallingFlag = true;
 			Stock[] stocks = gidStockMap.get(string);
 			int length = stocks.length;
-			for(int i = 0; i < length; i++){
-				if(stocks[i] == null){
+			for (int i = 0; i < length; i++) {
+				if (stocks[i] == null) {
 					isContinueFallingFlag = false;
 					break;
 				}
-				double result = stocks[i].getYestodEndPri() - stocks[i].getNowPri();
-				if(result > 0 ){
+				double result = stocks[i].getYestodEndPri()
+						- stocks[i].getNowPri();
+				// 跌且不停牌
+				if (result > 0 && stocks[i].getNowPri() > 0) {
 					continue;
 				}
 				isContinueFallingFlag = false;
 				break;
 			}
-			if(isContinueFallingFlag){
-				Stock stock = new Stock(string, stocks[0].getName(), stocks[0].getTodayStartPri(), stocks[0].getYestodEndPri(), stocks[0].getNowPri(), stocks[0].getTodayMax(), stocks[0].getTodayMin(), stocks[0].getCompetitivePri(), stocks[0].getReservePri(), stocks[0].getTraNumber(), stocks[0].getTraAmount(), stocks[0].getDate());
+			if (isContinueFallingFlag) {
+				Stock stock = new Stock(string, stocks[0].getName(),
+						stocks[0].getTodayStartPri(),
+						stocks[0].getYestodEndPri(), stocks[0].getNowPri(),
+						stocks[0].getTodayMax(), stocks[0].getTodayMin(),
+						stocks[0].getCompetitivePri(),
+						stocks[0].getReservePri(), stocks[0].getTraNumber(),
+						stocks[0].getTraAmount(), stocks[0].getDate());
 				list.add(stock);
 			}
 			isContinueFallingFlag = true;
 		}
 		return list.toArray(new Stock[list.size()]);
 	}
-	
+
 	/**
 	 * 计算连续上涨的股票
 	 * 
@@ -218,13 +274,13 @@ public class BussisceFacde {
 		Map<String, Stock[]> gidStockMap = new HashMap<String, Stock[]>();
 		for (int i = 0; i < size; i++) {
 			Stock[] stocks = pStockInfoList.get(i);
-			if(stocks == null){
+			if (stocks == null) {
 				continue;
 			}
 			int length = stocks.length;
-			for(int j =0; j < length; j++){
+			for (int j = 0; j < length; j++) {
 				String gid = stocks[j].getGid();
-				if(gidStockMap.get(gid) == null){
+				if (gidStockMap.get(gid) == null) {
 					Stock[] sameGidStocks = new Stock[size];
 					gidStockMap.put(gid, sameGidStocks);
 				}
@@ -236,20 +292,27 @@ public class BussisceFacde {
 			boolean isContinueFallingFlag = true;
 			Stock[] stocks = gidStockMap.get(string);
 			int length = stocks.length;
-			for(int i = 0; i < length; i++){
-				if(stocks[i] == null){
+			for (int i = 0; i < length; i++) {
+				if (stocks[i] == null) {
 					isContinueFallingFlag = false;
 					break;
 				}
-				double result = stocks[i].getYestodEndPri() - stocks[i].getNowPri();
-				if(result < 0 ){
+				double result = stocks[i].getYestodEndPri()
+						- stocks[i].getNowPri();
+				if (result < 0) {
 					continue;
 				}
 				isContinueFallingFlag = false;
 				break;
 			}
-			if(isContinueFallingFlag){
-				Stock stock = new Stock(string, stocks[0].getName(), stocks[0].getTodayStartPri(), stocks[0].getYestodEndPri(), stocks[0].getNowPri(), stocks[0].getTodayMax(), stocks[0].getTodayMin(), stocks[0].getCompetitivePri(), stocks[0].getReservePri(), stocks[0].getTraNumber(), stocks[0].getTraAmount(), stocks[0].getDate());
+			if (isContinueFallingFlag) {
+				Stock stock = new Stock(string, stocks[0].getName(),
+						stocks[0].getTodayStartPri(),
+						stocks[0].getYestodEndPri(), stocks[0].getNowPri(),
+						stocks[0].getTodayMax(), stocks[0].getTodayMin(),
+						stocks[0].getCompetitivePri(),
+						stocks[0].getReservePri(), stocks[0].getTraNumber(),
+						stocks[0].getTraAmount(), stocks[0].getDate());
 				list.add(stock);
 			}
 			isContinueFallingFlag = true;
@@ -262,9 +325,10 @@ public class BussisceFacde {
 	 * 
 	 * @param pDays
 	 * @return
-	 * @throws NetworkErrorException 
+	 * @throws NetworkErrorException
 	 */
-	private List<Stock[]> getStockInfoList(int pDays) throws NetworkErrorException {
+	private List<Stock[]> getStockInfoList(int pDays)
+			throws NetworkErrorException {
 		List<Stock[]> list = new ArrayList<Stock[]>();
 		int invailDay = 0;
 		for (int i = 0; i < pDays; i++) {
@@ -272,15 +336,15 @@ public class BussisceFacde {
 			Stock[] stock = null;
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			String strDate = df.format(new Date(d.getTime()
-					- ((i+invailDay) * 24 * 60 * 60 * 1000)));
+					- ((i + invailDay) * 24 * 60 * 60 * 1000)));
 			Date date2;
 			try {
 				date2 = df.parse(strDate);
 				boolean vaildDay = !isHolidayDay(date2);
-				while(!vaildDay){
+				while (!vaildDay) {
 					invailDay++;
 					strDate = df.format(new Date(d.getTime()
-							- ((i+invailDay) * 24 * 60 * 60 * 1000)));
+							- ((i + invailDay) * 24 * 60 * 60 * 1000)));
 					date2 = df.parse(strDate);
 					vaildDay = !isHolidayDay(date2);
 				}
@@ -322,7 +386,7 @@ public class BussisceFacde {
 				@Override
 				public void onFinish() {
 					// TODO Auto-generated method stub
-					int progress = caculateProgress(list.size(),length);
+					int progress = caculateProgress(list.size(), length);
 					m_UpdateProgressCallBack.update(progress);
 					if (list.size() == length) {
 						m_PersistenceService.saveAllStocksDetailInfo(list
@@ -332,7 +396,7 @@ public class BussisceFacde {
 
 				private int caculateProgress(int size, int length) {
 					// TODO Auto-generated method stub
-					return (int) ((size/(double)length)*100);
+					return (int) ((size / (double) length) * 100);
 				}
 
 				@Override
