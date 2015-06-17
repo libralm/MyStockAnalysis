@@ -70,7 +70,7 @@ public class BussisceFacde {
 				// TODO Auto-generated method stub
 				List<Stock[]> infoList = null;
 				try {
-					if (!isDealTime()) {
+					if (!m_NetService.isDealTime()) {
 						params[0]--;
 					}
 					infoList = getStockInfoList(params[0]);
@@ -112,7 +112,7 @@ public class BussisceFacde {
 				// TODO Auto-generated method stub
 				List<Stock[]> infoList = null;
 				try {
-					if (!isDealTime()) {
+					if (!m_NetService.isDealTime()) {
 						params[0]--;
 					}
 					infoList = getStockInfoList(params[0]);
@@ -147,7 +147,7 @@ public class BussisceFacde {
 				// TODO Auto-generated method stub
 				try {
 					try {
-						if (!isHolidayDay(new Date()) && isDealTime()) {
+						if (!isHolidayDay(new Date()) && m_NetService.isDealTime()) {
 							downloadAllBaseStocksInfo();
 						} else {
 							pUpdateCallback.onFinish();
@@ -165,31 +165,6 @@ public class BussisceFacde {
 
 		}.execute();
 
-	}
-
-	/**
-	 * 当前时间是否为交易时间
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	@SuppressWarnings("deprecation")
-	private boolean isDealTime() throws IOException {
-		// TODO Auto-generated method stub
-		TimeZone.setDefault(TimeZone.getTimeZone("GMT+8")); // 时区设置
-		URL url = new URL("http://www.bjtime.cn");// 取得资源对象
-		URLConnection uc = url.openConnection();// 生成连接对象
-		uc.connect(); // 发出连接
-		long ld = uc.getDate(); // 取得网站日期时间（时间戳）
-		Date date = new Date(ld); // 转换为标准时间对象
-		int year = date.getYear();
-		int month = date.getMonth();
-		int day = date.getDate();
-		Date dealTime = new Date(year, month, day, 8, 24);
-		if (date.after(dealTime)) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
