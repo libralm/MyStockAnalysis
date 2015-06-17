@@ -1,8 +1,6 @@
 package com.libra.stockanalysisi.engine.impl;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import android.accounts.NetworkErrorException;
 import android.annotation.SuppressLint;
@@ -34,7 +31,7 @@ public class BussisceFacde {
 	private IPersistenceService m_PersistenceService;
 
 	private IUpdateProgress m_UpdateProgressCallBack;
-
+	
 	public BussisceFacde(Context pContext) {
 		super();
 		m_NetService = new DataNetService(pContext);
@@ -142,27 +139,34 @@ public class BussisceFacde {
 		m_UpdateProgressCallBack = pUpdateCallback;
 		new AsyncTask<Void, Void, Void>() {
 
+			Throwable mThrowable;
+			
 			@Override
 			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
 				try {
-					try {
 						if (!isHolidayDay(new Date()) && m_NetService.isDealTime()) {
 							downloadAllBaseStocksInfo();
-						} else {
-							pUpdateCallback.onFinish();
 						}
-					} catch (NetworkErrorException e) {
-						// TODO Auto-generated catch block
-						pUpdateCallback.onFailure(e);
-					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					mThrowable = e;
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					mThrowable = e;
 				}
 				return null;
 			}
 
+			protected void onPostExecute(Void result) {
+				if(mThrowable != null){					
+					pUpdateCallback.onFailure(mThrowable);
+					return;
+				}
+			};
+			
 		}.execute();
 
 	}
@@ -366,6 +370,7 @@ public class BussisceFacde {
 					if (list.size() == length) {
 						m_PersistenceService.saveAllStocksDetailInfo(list
 								.toArray(new Stock[length]));
+						m_UpdateProgressCallBack.onFinish();
 					}
 				}
 

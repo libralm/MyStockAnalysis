@@ -199,6 +199,7 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void onFailure(Throwable pThrowable) {
 		// TODO Auto-generated method stub
+		m_UpdateDialog.dismiss();
 		Toast.makeText(this, "更新数据出错", Toast.LENGTH_SHORT).show();
 	}
 
