@@ -52,8 +52,6 @@ public class FreeStockInfoSerialization implements IStockInfoSerializtion {
 	30：”2008-01-11″，日期； 
 	31：”15:05:32″，时间；
 		 */
-		System.out.println(pData);
-		System.out.println("====================");
 		String name = datas[0];
 		double todayStartPri = Double.parseDouble(datas[1]);
 		double yestodEndPri = Double.parseDouble(datas[2]);
