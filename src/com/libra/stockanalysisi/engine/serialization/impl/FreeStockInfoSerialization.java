@@ -22,7 +22,7 @@ public class FreeStockInfoSerialization implements IStockInfoSerializtion {
 		String gid = pData.split("=")[0].split("_")[2];
 		String[] datas = split[1].split(",");
 		if(datas.length<2){
-			return new Stock(gid, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, null);
+			return new Stock(gid, null, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0, 0, null);
 		}
 		/**
 		 * 
@@ -53,15 +53,15 @@ public class FreeStockInfoSerialization implements IStockInfoSerializtion {
 	31：”15:05:32″，时间；
 		 */
 		String name = datas[0];
-		double todayStartPri = Double.parseDouble(datas[1]);
-		double yestodEndPri = Double.parseDouble(datas[2]);
-		double nowPri = Double.parseDouble(datas[3]);
-		double todayMax = Double.parseDouble(datas[4]);
-		double todayMin = Double.parseDouble(datas[5]);
-		double competitivePri = Double.parseDouble(datas[6]);
-		double reservePri = Double.parseDouble(datas[7]);
-		double traNumber = Double.parseDouble(datas[8]);
-		double traAmount = Double.parseDouble(datas[9]);
+		Double todayStartPri = Double.parseDouble(datas[1]);
+		Double yestodEndPri = Double.parseDouble(datas[2]);
+		Double nowPri = Double.parseDouble(datas[3]);
+		Double todayMax = Double.parseDouble(datas[4]);
+		Double todayMin = Double.parseDouble(datas[5]);
+		Double competitivePri = Double.parseDouble(datas[6]);
+		Double reservePri = Double.parseDouble(datas[7]);
+		Integer traNumber = Integer.parseInt(datas[8]);
+		Integer traAmount = Integer.parseInt(datas[9]);
 		String strDate = datas[30];
 		Date date = null;
 		try {

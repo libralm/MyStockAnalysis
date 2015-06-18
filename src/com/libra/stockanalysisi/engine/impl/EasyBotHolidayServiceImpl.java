@@ -12,7 +12,7 @@ import com.libra.stockanalysisi.engine.IHolidayService;
 import com.libra.stockanalysisi.engine.serialization.impl.EasyBotHolidayServiceSeralizationImpl;
 import com.libra.stockanalysisi.netUtils.HttpsClientUtils;
 
-public class EasyBotHolidayServiceImpl implements IHolidayService {
+class EasyBotHolidayServiceImpl implements IHolidayService {
 
 	private String m_Url = new String(
 			"http://www.easybots.cn/api/holiday.php?d=*");

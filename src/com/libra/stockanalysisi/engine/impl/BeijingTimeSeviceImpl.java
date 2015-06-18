@@ -8,7 +8,7 @@ import java.util.TimeZone;
 
 import com.libra.stockanalysisi.engine.ITimeService;
 
-public class BeijingTimeSeviceImpl implements ITimeService {
+class BeijingTimeSeviceImpl implements ITimeService {
 
 	@SuppressWarnings("deprecation")
 	@Override
