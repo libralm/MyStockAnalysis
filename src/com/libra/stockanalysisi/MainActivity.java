@@ -1,6 +1,8 @@
 package com.libra.stockanalysisi;
 
 import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.List;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -22,14 +25,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+import cn.aigestudio.datepicker.interfaces.OnDateSelected;
+import cn.aigestudio.datepicker.views.DatePicker;
 
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.impl.BussisceFacde;
+import com.libra.stockanalysisi.view.widget.ScaleWindowView;
 
 public class MainActivity extends ActionBarActivity implements 
-		IUpdateProgress, OnItemClickListener, OnEditorActionListener {
+		IUpdateProgress, OnItemClickListener, OnEditorActionListener, OnClickListener {
 
 	private EditText m_FallingET,m_RiseET;
 
@@ -39,6 +45,8 @@ public class MainActivity extends ActionBarActivity implements
 	private BussisceFacde m_Facde;
 
 	private ProgressDialog m_UpdateDialog,m_CaculateProgress;
+	
+	private ScaleWindowView m_WindowView;
 
 	private MyAdapter mAdapter;
 	
@@ -55,6 +63,7 @@ public class MainActivity extends ActionBarActivity implements
 		setContentView(R.layout.activity_main);
 	m_FallingET = (EditText) findViewById(R.id.et_continusFallingDays);
 	m_FallingET.setOnEditorActionListener(this);
+	m_FallingET.setOnClickListener(this);
 	m_RiseET  = (EditText) findViewById(R.id.et_continusRiseDays);
 	m_RiseET.setOnEditorActionListener(this);
 		m_LV = (ListView) findViewById(R.id.list);
@@ -259,5 +268,24 @@ public class MainActivity extends ActionBarActivity implements
 	    hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		m_CaculateProgress.show();
 		return true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		DatePicker picker = new DatePicker(this);
+		Date vailidBeginDay = new Date(115, 5, 12);
+		Date vailidEndingDay = new Date();
+		picker.setVailidDays(vailidBeginDay,vailidEndingDay,Color.GREEN);
+		final ScaleWindowView view = new ScaleWindowView(this, picker);
+		picker.setOnDateSelected(new OnDateSelected() {
+			
+			@Override
+			public void selected(List<String> date) {
+				// TODO Auto-generated method stub
+				view.dismiss();
+			}
+		});
+		view.show();
 	}
 }
