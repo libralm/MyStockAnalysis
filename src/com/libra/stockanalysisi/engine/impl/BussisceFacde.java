@@ -13,9 +13,11 @@ import java.util.Set;
 
 import android.accounts.NetworkErrorException;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.bmob.pay.tool.BmobPay;
 import com.libra.stockanalysisi.bean.BaseStock;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
@@ -23,6 +25,9 @@ import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
+import com.libra.stockanalysisi.engine.pay.IPayListener;
+import com.libra.stockanalysisi.engine.pay.IPayService;
+import com.libra.stockanalysisi.engine.pay.impl.BmobPayServiceImpl;
 
 @SuppressLint("SimpleDateFormat")
 public class BussisceFacde {
@@ -32,16 +37,19 @@ public class BussisceFacde {
 	private IPersistenceService m_PersistenceService;
 
 	private IUpdateProgress m_UpdateProgressCallBack;
+	
+	private IPayService m_PayService;
 
 	private Context m_Context;
 
-	public BussisceFacde(Context pContext) {
+	public BussisceFacde(Activity pContext) {
 		super();
 		m_Context = pContext;
 		m_NetService = new DataNetService(pContext);
 		m_PersistenceService = new PersistenceServiceImpl();
+		m_PayService = new BmobPayServiceImpl(pContext);
 	}
-
+	
 	private Stock[] readDetailStocksInfo(Date pDate) {
 		return m_PersistenceService.readAllStocksDetailInfo(pDate);
 	}
@@ -52,6 +60,38 @@ public class BussisceFacde {
 
 	public int getStocksNumber() {
 		return readAllBaseStockInfo().length;
+	}
+	
+	public void payZhifubao(IPayListener pPayListener){
+		m_PayService.payZhifubao(pPayListener);
+	}
+	
+	public void payWeixin(IPayListener pPayListener){
+		m_PayService.payWeixin(pPayListener);
+	}
+	
+	/**
+	 * 指定连续下跌的日期。
+	 * @param pBeginDate
+	 * @param pEndingDate
+	 * @param pCallback
+	 */
+	public void caculateCustomDatesContinousFallingStocks(final Date pBeginDate, final Date pEndingDate, final IContinousStateStocksCallBack pCallback){
+		long seconds = pEndingDate.getTime() - pBeginDate.getTime();
+		int days = (int) (seconds/1000/60/60/24);
+		continuousFalling(days, pCallback);
+	}
+	
+	/**
+	 * 指定连续下跌的日期。
+	 * @param pBeginDate
+	 * @param pEndingDate
+	 * @param pCallback
+	 */
+	public void caculateCustomDatesContinousRiseStocks(final Date pBeginDate, final Date pEndingDate, final IContinousStateStocksCallBack pCallback){
+		long seconds = pEndingDate.getTime() - pBeginDate.getTime();
+		int days = (int) (seconds/1000/60/60/24);
+		continuousRise(days, pCallback);
 	}
 
 	/**
@@ -185,7 +225,8 @@ public class BussisceFacde {
 	private boolean isHolidayDay(Date date) throws NetworkErrorException {
 		return m_NetService.isHoliday(date);
 	}
-
+	
+	
 	/**
 	 * 计算连续下跌的股票
 	 * 
@@ -385,7 +426,6 @@ public class BussisceFacde {
 				public void onSuccess(Stock pStock) {
 					// TODO Auto-generated method stub
 					pList.add(pStock);
-					System.out.println(pList.size());
 				}
 
 				@Override
