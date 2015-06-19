@@ -8,87 +8,91 @@ public class Stock extends BaseStock {
 	 * 
 	 */
 	private static final long serialVersionUID = 4173556025373242718L;
-	private Double m_TodayStartPri; /* 今日开盘价 */
-	private Double m_YestodEndPri; /* 昨日收盘价 */
-	private Double m_NowPri; /* 当前价格 */
-	private Double m_TodayMax; /* 今日最高价 */
-	private Double m_TodayMin; /* 今日最低价 */
-	private Double m_CompetitivePri; /* 竞买价 */
-	private Double m_ReservePri; /* 竞卖价 */
-	private Integer m_TraNumber; /* 成交量 */
-	private Integer m_TraAmount; /* 成交金额 */
+	private double m_TodayStartPri; /* 今日开盘价 */
+	private double m_YestodEndPri; /* 昨日收盘价 */
+	private double m_NowPri; /* 当前价格 */
+	private double m_TodayMax; /* 今日最高价 */
+	private double m_TodayMin; /* 今日最低价 */
+	private double m_CompetitivePri; /* 竞买价 */
+	private double m_ReservePri; /* 竞卖价 */
+	private Double m_TraNumber; /* 成交量 */
+	private Double m_TraAmount; /* 成交金额 */
 	// 2012-12-11
 	private Date m_Date; /* 日期 */
+	
+	public Stock(){
+		setTableName("Stock");
+	}
 
-	public Double getTodayStartPri() {
+	public double getTodayStartPri() {
 		return m_TodayStartPri;
 	}
 
-	public void setTodayStartPri(Double pTodayStartPri) {
+	public void setTodayStartPri(double pTodayStartPri) {
 		this.m_TodayStartPri = pTodayStartPri;
 	}
 
-	public Double getYestodEndPri() {
+	public double getYestodEndPri() {
 		return m_YestodEndPri;
 	}
 
-	public void setYestodEndPri(Double pYestodEndPri) {
+	public void setYestodEndPri(double pYestodEndPri) {
 		this.m_YestodEndPri = pYestodEndPri;
 	}
 
-	public Double getNowPri() {
+	public double getNowPri() {
 		return m_NowPri;
 	}
 
-	public void setNowPri(Double pNowPri) {
+	public void setNowPri(double pNowPri) {
 		this.m_NowPri = pNowPri;
 	}
 
-	public Double getTodayMax() {
+	public double getTodayMax() {
 		return m_TodayMax;
 	}
 
-	public void setTodayMax(Double pTodayMax) {
+	public void setTodayMax(double pTodayMax) {
 		this.m_TodayMax = pTodayMax;
 	}
 
-	public Double getTodayMin() {
+	public double getTodayMin() {
 		return m_TodayMin;
 	}
 
-	public void setTodayMin(Double pTodayMin) {
+	public void setTodayMin(double pTodayMin) {
 		this.m_TodayMin = pTodayMin;
 	}
 
-	public Double getCompetitivePri() {
+	public double getCompetitivePri() {
 		return m_CompetitivePri;
 	}
 
-	public void setCompetitivePri(Double pCompetitivePri) {
+	public void setCompetitivePri(double pCompetitivePri) {
 		this.m_CompetitivePri = pCompetitivePri;
 	}
 
-	public Double getReservePri() {
+	public double getReservePri() {
 		return m_ReservePri;
 	}
 
-	public void setReservePri(Double pReservePri) {
+	public void setReservePri(double pReservePri) {
 		this.m_ReservePri = pReservePri;
 	}
 
-	public Integer getTraNumber() {
+	public Double getTraNumber() {
 		return m_TraNumber;
 	}
 
-	public void setTraNumber(Integer pTraNumber) {
+	public void setTraNumber(Double pTraNumber) {
 		this.m_TraNumber = pTraNumber;
 	}
 
-	public Integer getTraAmount() {
+	public Double getTraAmount() {
 		return m_TraAmount;
 	}
 
-	public void setTraAmount(Integer pTraAmount) {
+	public void setTraAmount(Double pTraAmount) {
 		this.m_TraAmount = pTraAmount;
 	}
 
@@ -100,10 +104,10 @@ public class Stock extends BaseStock {
 		this.m_Date = pDate;
 	}
 
-	public Stock(String m_Gid, String m_Name, Double m_TodayStartPri,
-			Double m_YestodEndPri, Double m_NowPri, Double m_TodayMax,
-			Double m_TodayMin, Double m_CompetitivePri, Double m_ReservePri,
-			Integer m_TraNumber, Integer m_TraAmount, Date m_Date) {
+	public Stock(String m_Gid, String m_Name, double m_TodayStartPri,
+			double m_YestodEndPri, double m_NowPri, double m_TodayMax,
+			double m_TodayMin, double m_CompetitivePri, double m_ReservePri,
+			Double m_TraNumber, Double m_TraAmount, Date m_Date) {
 		super();
 		this.m_Gid = m_Gid;
 		this.m_Name = m_Name;
