@@ -22,7 +22,7 @@ public class FreeStockInfoSerialization implements IStockInfoSerializtion {
 		String gid = pData.split("=")[0].split("_")[2];
 		String[] datas = split[1].split(",");
 		if(datas.length<2){
-			return new Stock(gid, null, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0, 0, null);
+			return new Stock(gid, null, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, null);
 		}
 		/**
 		 * 
@@ -60,8 +60,8 @@ public class FreeStockInfoSerialization implements IStockInfoSerializtion {
 		Double todayMin = Double.parseDouble(datas[5]);
 		Double competitivePri = Double.parseDouble(datas[6]);
 		Double reservePri = Double.parseDouble(datas[7]);
-		Integer traNumber = Integer.parseInt(datas[8]);
-		Integer traAmount = Integer.parseInt(datas[9]);
+		Double traNumber = Double.parseDouble(datas[8]);
+		Double traAmount = Double.parseDouble(datas[9]);
 		String strDate = datas[30];
 		Date date = null;
 		try {
