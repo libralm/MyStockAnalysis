@@ -32,8 +32,8 @@ public class JuheStockInfoSerialization implements IStockInfoSerializtion {
 			Double todayMin = dataObj.getDouble("todayMin");
 			Double competitivePri = dataObj.getDouble("competitivePri");
 			Double reservePri = dataObj.getDouble("reservePri");
-			int traNumber = dataObj.getInt("traNumber");
-			int traAmount = dataObj.getInt("traAmount");
+			Double traNumber = dataObj.getDouble("traNumber");
+			Double traAmount = dataObj.getDouble("traAmount");
 			String strDate = dataObj.getString("date");
 			Date date = new SimpleDateFormat("yyyy-MM-dd").parse(strDate);
 			Stock stock = new Stock(gid, name, todayStartPri, yestodEndPri,
