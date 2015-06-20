@@ -31,7 +31,8 @@ import cn.aigestudio.datepicker.views.DatePicker;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
-import com.libra.stockanalysisi.engine.impl.BussisceFacde;
+import com.libra.stockanalysisi.engine.impl.AppBussinessFacdeService;
+import com.libra.stockanalysisi.engine.impl.StockBussisceFacde;
 import com.libra.stockanalysisi.view.widget.ScaleWindowView;
 
 public class MainActivity extends ActionBarActivity implements 
@@ -42,7 +43,7 @@ public class MainActivity extends ActionBarActivity implements
 
 	private ListView m_LV;
 
-	private BussisceFacde m_Facde;
+	private StockBussisceFacde m_Facde;
 
 	private ProgressDialog m_UpdateDialog,m_CaculateProgress;
 	
@@ -58,7 +59,8 @@ public class MainActivity extends ActionBarActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		m_Facde = new BussisceFacde(this);
+		AppBussinessFacdeService appService = new AppBussinessFacdeService(this);
+		m_Facde = (StockBussisceFacde) appService.getFacdeService(AppBussinessFacdeService.STOCK_FACDE_SERVICE);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 	m_FallingET = (EditText) findViewById(R.id.et_continusFallingDays);
