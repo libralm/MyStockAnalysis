@@ -1,6 +1,6 @@
 package com.libra.stockanalysisi.engine;
 
-public interface UserManagerCallback{
+public interface NetDataCallback{
 	
 	void onSuccess();
 	
