@@ -17,10 +17,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import cn.bmob.v3.Bmob;
-import cn.bmob.v3.BmobObject;
-
-import com.bmob.pay.tool.BmobPay;
 import com.libra.stockanalysisi.bean.BaseStock;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
