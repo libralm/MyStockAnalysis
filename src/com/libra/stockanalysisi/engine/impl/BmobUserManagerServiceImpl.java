@@ -21,8 +21,13 @@ import cn.bmob.v3.listener.VerifySMSCodeListener;
 
 import com.libra.stockanalysisi.bean.User;
 import com.libra.stockanalysisi.engine.IUserManagerService;
-import com.libra.stockanalysisi.engine.UserManagerCallback;
+import com.libra.stockanalysisi.engine.NetDataCallback;
 
+/**
+ * Bmob用户管理服务类实现
+ * @author liaomin
+ *
+ */
 class BmobUserManagerServiceImpl implements IUserManagerService {
 
 	private Context m_Context;
@@ -33,7 +38,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 
 	@Override
 	public void regiester(String pUserName, String pPassword, String email,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		User user = new User();
 		user.setUsername(pUserName);
@@ -57,7 +62,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 
 	@Override
 	public void login(String pAccount, String pPassword,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		if(isEmailFormat(pAccount)){			
 			loginByEmail(pAccount,pPassword,pCallback);
@@ -70,7 +75,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	private void loginByUserName(String pAccount, String pPassword,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		User bu2 = new User();
 		bu2.setUsername(pAccount);
@@ -92,7 +97,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	private void loginByPhoneNum(String pAccount, String pPassword,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		User.loginByAccount(m_Context, pAccount, pPassword, new LogInListener<User>() {
 
@@ -109,7 +114,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	private void loginByEmail(String pAccount, String pPassword,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		User.loginByAccount(m_Context, pAccount, pPassword, new LogInListener<User>() {
 
@@ -140,7 +145,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 
 	@Override
 	public void loginBySmsCode(int pPhoneNum, String pSmscode,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobUser.loginBySMSCode(m_Context, pPhoneNum+"", pSmscode, new LogInListener<User>() {
 
@@ -163,7 +168,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void logout(UserManagerCallback pCallback) {
+	public void logout(NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobUser.logOut(m_Context);   //清除缓存用户对象
 		BmobUser currentUser = BmobUser.getCurrentUser(m_Context);
@@ -173,7 +178,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void updateUserInfo(User pUser, final UserManagerCallback pCallback) {
+	public void updateUserInfo(User pUser, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobUser bmobUser = BmobUser.getCurrentUser(m_Context);
 		pUser.update(m_Context,bmobUser.getObjectId(),new UpdateListener() {
@@ -191,7 +196,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void queryUser(User pUser, final UserManagerCallback pCallback) {
+	public void queryUser(User pUser, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobQuery<BmobUser> query = new BmobQuery<BmobUser>();
 		query.addWhereEqualTo("username", pUser.getUsername());
@@ -212,7 +217,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void resetPasswordByEmail(String pEmail, final UserManagerCallback pCallback) {
+	public void resetPasswordByEmail(String pEmail, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobUser.resetPasswordByEmail(m_Context, pEmail,new ResetPasswordByEmailListener() {
 			
@@ -231,7 +236,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void requestEmailVerify(String pEmail, final UserManagerCallback pCallback) {
+	public void requestEmailVerify(String pEmail, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobUser.requestEmailVerify(m_Context, pEmail, new EmailVerifyListener() {
 		    @Override
@@ -248,7 +253,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void requestSMSCode(int pPhoneNum, final UserManagerCallback pCallback) {
+	public void requestSMSCode(int pPhoneNum, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobSMS.requestSMSCode(m_Context, pPhoneNum+"", "股票抄底", new RequestSMSCodeListener() {
 			
@@ -266,7 +271,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 
 	@Override
 	public void verifySmsCode(int pPhoneNum, String pSMSCode,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobSMS.verifySmsCode(m_Context, pPhoneNum+"", pSMSCode, new VerifySMSCodeListener() {
 
@@ -283,7 +288,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void resetPasswordByPhone(int phoneNum, final UserManagerCallback pCallback) {
+	public void resetPasswordByPhone(int phoneNum, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobSMS.requestSMSCode(m_Context, phoneNum+"","股票抄底", new RequestSMSCodeListener() {
 			
@@ -301,9 +306,9 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 
 	@Override
 	public void bindingPhoneNum(final int pPhoneNum, String pSmsCode,
-			final UserManagerCallback pCallback) {
+			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
-		verifySmsCode(pPhoneNum, pSmsCode, new UserManagerCallback() {
+		verifySmsCode(pPhoneNum, pSmsCode, new NetDataCallback() {
 			
 			@Override
 			public void onSuccess() {
