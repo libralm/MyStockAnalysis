@@ -1,6 +1,7 @@
 package com.libra.stockanalysisi.engine;
 
 import java.io.File;
+import java.util.List;
 
 import com.libra.stockanalysisi.bean.NetFileData;
 
@@ -16,14 +17,14 @@ public interface IDataSyncService {
 	 * @param pfile
 	 * @param pCallback
 	 */
-	void uploadFile(File pfile, NetDataCallback pCallback);
+	void uploadFile(File pfile, AsyncFileCallback pCallback);
 	
 	/**
 	 * 文件下载
 	 * @param pPath
 	 * @param pCallback
 	 */
-	void downFile(String pUrl, NetDataCallback pCallback);
+	void downFile(String pUrl, AsyncFileCallback pCallback);
 	
 	/**
 	 * 请求所有的网络文件
@@ -37,7 +38,7 @@ public interface IDataSyncService {
 	 * @param pUrl
 	 * @param pCallback
 	 */
-	void uploadNetFilesInfo(String pUrl, NetDataCallback pCallback);
+	void uploadNetFilesInfo(NetFileData pNetFileData, AsyncFileCallback pCallback);
 	
 	/**
 	 * 请求网络文件下载地址的集合
@@ -46,6 +47,17 @@ public interface IDataSyncService {
 	 */
 	public interface AllNetFilesCallback{
 		
-		void onNetFilesData(NetFileData[] pNetFileData);
+		void onNetFilesData(List<NetFileData> pNetFileData);
+		
+		void onError(int pCode, String pMsg);
+	}
+	
+	public interface AsyncFileCallback {
+
+		public void onSuccess(String pFileName,String url);
+		
+		public void onProgress(int pRatio);
+		
+		public void onError(int pCode, String pMsg);
 	}
 }

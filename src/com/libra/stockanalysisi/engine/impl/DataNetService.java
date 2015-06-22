@@ -1,20 +1,22 @@
 package com.libra.stockanalysisi.engine.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
 import android.accounts.NetworkErrorException;
 import android.content.Context;
 
+import com.libra.stockanalysisi.bean.NetFileData;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
-import com.libra.stockanalysisi.engine.HolidayCallBack;
 import com.libra.stockanalysisi.engine.IAllStockIDService;
-import com.libra.stockanalysisi.engine.ITimeService;
+import com.libra.stockanalysisi.engine.IDataSyncService;
 import com.libra.stockanalysisi.engine.IHolidayService;
 import com.libra.stockanalysisi.engine.IStockInfoService;
+import com.libra.stockanalysisi.engine.ITimeService;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
 
-class DataNetService implements IAllStockIDService,IStockInfoService,IHolidayService,ITimeService{
+class DataNetService implements IAllStockIDService,IStockInfoService,IHolidayService,ITimeService,IDataSyncService{
 	
 	private IAllStockIDService m_AllStockID;
 	
@@ -23,6 +25,8 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	private IHolidayService m_HolidayService;
 	
 	private ITimeService m_TimeService;
+	
+	private IDataSyncService m_DataSyncService;
 
 	DataNetService(Context pContext){
 		super();
@@ -30,6 +34,7 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 		m_StockInfo = new FreeStockInfoServiceImpl();
 		m_HolidayService = new EasyBotHolidayServiceImpl();
 		m_TimeService = new BeijingTimeSeviceImpl();
+		m_DataSyncService = new BmobDataSyncServiceImpl(pContext);
 	}
 
 	@Override
@@ -55,6 +60,31 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	public boolean isDealTime() throws IOException {
 		// TODO Auto-generated method stub
 		return m_TimeService.isDealTime();
+	}
+
+	@Override
+	public void uploadFile(File pfile, AsyncFileCallback pCallback) {
+		// TODO Auto-generated method stub
+		m_DataSyncService.uploadFile(pfile, pCallback);
+	}
+
+	@Override
+	public void downFile(String pUrl, AsyncFileCallback pCallback) {
+		// TODO Auto-generated method stub
+		m_DataSyncService.downFile(pUrl, pCallback);
+	}
+
+	@Override
+	public void requestAllNetFiles(String pUrl, AllNetFilesCallback pCallback) {
+		// TODO Auto-generated method stub
+		m_DataSyncService.requestAllNetFiles(pUrl, pCallback);
+	}
+
+	@Override
+	public void uploadNetFilesInfo(NetFileData pNetFileData,
+			AsyncFileCallback pCallback) {
+		// TODO Auto-generated method stub
+		m_DataSyncService.uploadNetFilesInfo(pNetFileData, pCallback);
 	}
 	
 	

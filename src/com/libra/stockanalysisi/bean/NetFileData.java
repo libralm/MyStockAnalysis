@@ -2,7 +2,14 @@ package com.libra.stockanalysisi.bean;
 
 import java.io.File;
 
-public class NetFileData {
+import cn.bmob.v3.BmobObject;
+
+public class NetFileData extends BmobObject{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6063107599077834704L;
 
 	private String m_Url;
 	

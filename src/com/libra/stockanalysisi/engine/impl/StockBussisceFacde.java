@@ -1,5 +1,6 @@
 package com.libra.stockanalysisi.engine.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,10 +19,12 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.libra.stockanalysisi.bean.BaseStock;
+import com.libra.stockanalysisi.bean.NetFileData;
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
 import com.libra.stockanalysisi.engine.FacdeService;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
+import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
@@ -453,5 +456,39 @@ public class StockBussisceFacde implements FacdeService{
 				}
 			});
 		}
+	}
+	
+	public void uploadFile(final File pfile,final AsyncFileCallback pCallback){
+		m_NetService.uploadFile(pfile, new AsyncFileCallback() {
+			
+			@Override
+			public void onSuccess(String pFileName, String url) {
+				// TODO Auto-generated method stub
+				NetFileData netFileData = new NetFileData();
+				netFileData.setLocalFile(pfile);
+				netFileData.setUrl(url);
+				m_NetService.uploadNetFilesInfo(netFileData, pCallback);
+			}
+			
+			@Override
+			public void onProgress(int pRatio) {
+				// TODO Auto-generated method stub
+				pCallback.onProgress(pRatio);
+			}
+			
+			@Override
+			public void onError(int pCode, String pMsg) {
+				// TODO Auto-generated method stub
+				pCallback.onError(pCode, pMsg);
+			}
+		});
+	}
+	
+	public void downFile(String pUrl,AsyncFileCallback pCallback){
+		m_NetService.downFile(pUrl, pCallback);
+	}
+	
+	public void refreshDate(){
+		
 	}
 }
