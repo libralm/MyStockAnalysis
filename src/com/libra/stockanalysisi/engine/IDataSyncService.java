@@ -1,6 +1,7 @@
 package com.libra.stockanalysisi.engine;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import com.libra.stockanalysisi.bean.NetFileData;
@@ -27,11 +28,11 @@ public interface IDataSyncService {
 	void downFile(String pUrl, AsyncFileCallback pCallback);
 	
 	/**
-	 * 请求所有的网络文件
+	 * 请求指定网络文件
 	 * @param pUrl
 	 * @param pCallback
 	 */
-	void requestAllNetFiles(String pUrl, AllNetFilesCallback pCallback);
+	void requestNetFiles(Date pBeginDate, Date pEndDate, AllNetFilesCallback pCallback);
 	
 	/**
 	 * 上传网络文件的信息
