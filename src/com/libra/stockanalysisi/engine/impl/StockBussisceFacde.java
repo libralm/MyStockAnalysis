@@ -1,6 +1,7 @@
 package com.libra.stockanalysisi.engine.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,7 @@ import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
 import com.libra.stockanalysisi.engine.FacdeService;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
+import com.libra.stockanalysisi.engine.IDataSyncService.AllNetFilesCallback;
 import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
@@ -33,14 +35,14 @@ import com.libra.stockanalysisi.engine.pay.IPayService;
 import com.libra.stockanalysisi.engine.pay.impl.BmobPayServiceImpl;
 
 @SuppressLint("SimpleDateFormat")
-public class StockBussisceFacde implements FacdeService{
+public class StockBussisceFacde implements FacdeService {
 
 	private DataNetService m_NetService;
 
 	private IPersistenceService m_PersistenceService;
 
 	private IUpdateProgress m_UpdateProgressCallBack;
-	
+
 	private IPayService m_PayService;
 
 	private Context m_Context;
@@ -52,8 +54,9 @@ public class StockBussisceFacde implements FacdeService{
 		m_PersistenceService = new PersistenceServiceImpl();
 		m_PayService = new BmobPayServiceImpl(pContext);
 	}
-	
-	private Stock[] readDetailStocksInfo(Date pDate) {
+
+	private Stock[] readDetailStocksInfo(Date pDate)
+			throws FileNotFoundException {
 		return m_PersistenceService.readAllStocksDetailInfo(pDate);
 	}
 
@@ -64,37 +67,340 @@ public class StockBussisceFacde implements FacdeService{
 	public int getStocksNumber() {
 		return readAllBaseStockInfo().length;
 	}
-	
-	public void payZhifubao(IPayListener pPayListener){
+
+	public void payZhifubao(IPayListener pPayListener) {
 		m_PayService.payZhifubao(pPayListener);
 	}
-	
-	public void payWeixin(IPayListener pPayListener){
+
+	public void payWeixin(IPayListener pPayListener) {
 		m_PayService.payWeixin(pPayListener);
 	}
-	
-	/**
-	 * 指定连续下跌的日期。
-	 * @param pBeginDate
-	 * @param pEndingDate
-	 * @param pCallback
-	 */
-	public void caculateCustomDatesContinousFallingStocks(final Date pBeginDate, final Date pEndingDate, final IContinousStateStocksCallBack pCallback){
+
+	private Date[] checkNoDownloadFileDate(Date pBeginDate, Date pEndingDate)
+			throws NetworkErrorException {
+		List<Date> dates = new ArrayList<Date>();
 		long seconds = pEndingDate.getTime() - pBeginDate.getTime();
-		int days = (int) (seconds/1000/60/60/24);
-		continuousFalling(days, pCallback);
+		int days = (int) (seconds / 1000 / 60 / 60 / 24);
+		for (int i = 0; i < days; i++) {
+			Date date = new Date(seconds - (24 * 60 * 60 * 1000) * i);
+			try {
+				if (!m_NetService.isHoliday(date)) {
+					m_PersistenceService.readAllStocksDetailInfo(date);
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				dates.add(date);
+			}
+		}
+		Date[] array = new Date[dates.size()];
+		return dates.toArray(array);
 	}
-	
+
 	/**
 	 * 指定连续下跌的日期。
+	 * 
+	 * @param pBeginDate
+	 * @param pEndingDate
+	 * @param pCallback
+	 * @throws NetworkErrorException
+	 */
+	public void caculateCustomDatesContinousFallingStocks(
+			final Date pBeginDate, final Date pEndingDate,
+			final IContinousStateStocksCallBack pCallback)
+			throws NetworkErrorException {
+		new AsyncTask<Void, Void, Stock[]>() {
+			int flag = -1;
+
+			@Override
+			protected Stock[] doInBackground(Void... params) {
+				// TODO Auto-generated method stub
+				Stock[] stocks = null;
+				try {
+					final Date[] noDownloadFile = checkNoDownloadFileDate(
+							pBeginDate, pEndingDate);
+					if (noDownloadFile.length > 0) {
+						flag = 0;
+						// 获取下载地址。
+						m_NetService.requestNetFiles(pBeginDate, pEndingDate,
+								new AllNetFilesCallback() {
+
+									@Override
+									public void onNetFilesData(
+											final List<NetFileData> pNetFileData) {
+										// TODO Auto-generated method stub
+										final List<Stock[]> stockArrlist = new ArrayList<Stock[]>();
+										List<Date> list = Arrays
+												.asList(noDownloadFile);
+										int size = pNetFileData.size();
+										for (int i = 0; i < size; i++) {
+											NetFileData data = pNetFileData
+													.get(i);
+											String fileName = data
+													.getFileName();
+											for (int j = 0; j < list.size(); j++) {
+												if (new SimpleDateFormat(
+														"yyyy-MM-dd").format(
+														list.get(j)).equals(
+														fileName)) {
+													m_NetService.downFile(
+															data.getUrl(),
+															new AsyncFileCallback() {
+
+																@Override
+																public void onSuccess(
+																		String pFileName,
+																		String url) {
+																	// TODO
+																	// Auto-generated
+																	// method
+																	// stub
+																	try {
+																		Stock[] detailInfo = m_PersistenceService
+																				.readAllStocksDetailInfo(new SimpleDateFormat(
+																						"yyyy-MM-dd")
+																						.parse(pFileName));
+																		stockArrlist
+																				.add(detailInfo);
+																		if (stockArrlist
+																				.size() == pNetFileData
+																				.size()) {
+																			Stock[] fallingStocks = caculateContinousFallingStocks(stockArrlist);
+																			pCallback
+																					.continusStatesStocks(fallingStocks);
+																		}
+																	} catch (FileNotFoundException e) {
+																		// TODO
+																		// Auto-generated
+																		// catch
+																		// block
+																		e.printStackTrace();
+																	} catch (ParseException e) {
+																		// TODO
+																		// Auto-generated
+																		// catch
+																		// block
+																		e.printStackTrace();
+																	}
+																}
+
+																@Override
+																public void onProgress(
+																		int pRatio) {
+																	// TODO
+																	// Auto-generated
+																	// method
+																	// stub
+
+																}
+
+																@Override
+																public void onError(
+																		int pCode,
+																		String pMsg) {
+																	// TODO
+																	// Auto-generated
+																	// method
+																	// stub
+
+																}
+															});
+													list.remove(j);
+													break;
+												}
+											}
+										}
+									}
+
+									@Override
+									public void onError(int pCode, String pMsg) {
+										// TODO Auto-generated method stub
+
+									}
+								});
+					} else {
+						// 本地获取相应的数据开始分析。
+						long seconds = pEndingDate.getTime()
+								- pBeginDate.getTime();
+						int days = (int) (seconds / 1000 / 60 / 60 / 24);
+						List<Stock[]> list = null;
+						try {
+							list = getStockInfoListFromLocal(pEndingDate, days);
+						} catch (NetworkErrorException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						stocks = caculateContinousFallingStocks(list);
+					}
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return stocks;
+			}
+
+			protected void onPostExecute(Stock[] result) {
+				if (flag != 0) {
+					pCallback.continusStatesStocks(result);
+				}
+
+			};
+		}.execute();
+	}
+
+	/**
+	 * 指定连续上涨的日期。
+	 * 
 	 * @param pBeginDate
 	 * @param pEndingDate
 	 * @param pCallback
 	 */
-	public void caculateCustomDatesContinousRiseStocks(final Date pBeginDate, final Date pEndingDate, final IContinousStateStocksCallBack pCallback){
-		long seconds = pEndingDate.getTime() - pBeginDate.getTime();
-		int days = (int) (seconds/1000/60/60/24);
-		continuousRise(days, pCallback);
+	public void caculateCustomDatesContinousRiseStocks(final Date pBeginDate,
+			final Date pEndingDate,
+			final IContinousStateStocksCallBack pCallback) {
+		new AsyncTask<Void, Void, Stock[]>() {
+			int flag = -1;
+
+			@Override
+			protected Stock[] doInBackground(Void... params) {
+				// TODO Auto-generated method stub
+				Stock[] stocks = null;
+				try {
+					final Date[] noDownloadFile = checkNoDownloadFileDate(
+							pBeginDate, pEndingDate);
+					if (noDownloadFile.length > 0) {
+						flag = 0;
+						// 获取下载地址。
+						m_NetService.requestNetFiles(pBeginDate, pEndingDate,
+								new AllNetFilesCallback() {
+
+									@Override
+									public void onNetFilesData(
+											final List<NetFileData> pNetFileData) {
+										// TODO Auto-generated method stub
+										final List<Stock[]> stockArrlist = new ArrayList<Stock[]>();
+										List<Date> list = Arrays
+												.asList(noDownloadFile);
+										int size = pNetFileData.size();
+										for (int i = 0; i < size; i++) {
+											NetFileData data = pNetFileData
+													.get(i);
+											String fileName = data
+													.getFileName();
+											for (int j = 0; j < list.size(); j++) {
+												if (new SimpleDateFormat(
+														"yyyy-MM-dd").format(
+														list.get(j)).equals(
+														fileName)) {
+													m_NetService.downFile(
+															data.getUrl(),
+															new AsyncFileCallback() {
+
+																@Override
+																public void onSuccess(
+																		String pFileName,
+																		String url) {
+																	// TODO
+																	// Auto-generated
+																	// method
+																	// stub
+																	try {
+																		Stock[] detailInfo = m_PersistenceService
+																				.readAllStocksDetailInfo(new SimpleDateFormat(
+																						"yyyy-MM-dd")
+																						.parse(pFileName));
+																		stockArrlist
+																				.add(detailInfo);
+																		if (stockArrlist
+																				.size() == pNetFileData
+																				.size()) {
+																			Stock[] fallingStocks = caculateContinousRiseStocks(stockArrlist);
+																			pCallback
+																					.continusStatesStocks(fallingStocks);
+																		}
+																	} catch (FileNotFoundException e) {
+																		// TODO
+																		// Auto-generated
+																		// catch
+																		// block
+																		e.printStackTrace();
+																	} catch (ParseException e) {
+																		// TODO
+																		// Auto-generated
+																		// catch
+																		// block
+																		e.printStackTrace();
+																	}
+																}
+
+																@Override
+																public void onProgress(
+																		int pRatio) {
+																	// TODO
+																	// Auto-generated
+																	// method
+																	// stub
+
+																}
+
+																@Override
+																public void onError(
+																		int pCode,
+																		String pMsg) {
+																	// TODO
+																	// Auto-generated
+																	// method
+																	// stub
+
+																}
+															});
+													list.remove(j);
+													break;
+												}
+											}
+										}
+									}
+
+									@Override
+									public void onError(int pCode, String pMsg) {
+										// TODO Auto-generated method stub
+
+									}
+								});
+					} else {
+						// 本地获取相应的数据开始分析。
+						long seconds = pEndingDate.getTime()
+								- pBeginDate.getTime();
+						int days = (int) (seconds / 1000 / 60 / 60 / 24);
+						List<Stock[]> list = null;
+						try {
+							list = getStockInfoListFromLocal(pEndingDate, days);
+						} catch (NetworkErrorException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						stocks = caculateContinousRiseStocks(list);
+					}
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return stocks;
+			}
+
+			protected void onPostExecute(Stock[] result) {
+				if (flag != 0) {
+					pCallback.continusStatesStocks(result);
+				}
+
+			};
+		}.execute();
 	}
 
 	/**
@@ -117,14 +423,19 @@ public class StockBussisceFacde implements FacdeService{
 					if (!m_NetService.isDealTime()) {
 						params[0]--;
 					}
-					infoList = getStockInfoList(params[0]);
-				} catch (NetworkErrorException e) {
-					// TODO Auto-generated catch block
-					mThrowable = e;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					mThrowable = e;
+				}
+				try {
+					infoList = getStockInfoListFromLocal(new Date(), params[0]);
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				Stock[] stocks = caculateContinousFallingStocks(infoList);
 				return stocks;
@@ -135,7 +446,7 @@ public class StockBussisceFacde implements FacdeService{
 					pCallBack.onFailure(mThrowable);
 					return;
 				}
-				pCallBack.continusFallingStocks(result);
+				pCallBack.continusStatesStocks(result);
 			};
 
 		}.execute(days);
@@ -159,7 +470,7 @@ public class StockBussisceFacde implements FacdeService{
 					if (!m_NetService.isDealTime()) {
 						params[0]--;
 					}
-					infoList = getStockInfoList(params[0]);
+					infoList = getStockInfoListFromLocal(new Date(), params[0]);
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					pCallBack.onFailure(e);
@@ -171,7 +482,7 @@ public class StockBussisceFacde implements FacdeService{
 			}
 
 			protected void onPostExecute(Stock[] result) {
-				pCallBack.continusFallingStocks(result);
+				pCallBack.continusStatesStocks(result);
 			};
 
 		}.execute(days);
@@ -228,8 +539,7 @@ public class StockBussisceFacde implements FacdeService{
 	private boolean isHolidayDay(Date date) throws NetworkErrorException {
 		return m_NetService.isHoliday(date);
 	}
-	
-	
+
 	/**
 	 * 计算连续下跌的股票
 	 * 
@@ -353,16 +663,16 @@ public class StockBussisceFacde implements FacdeService{
 	 * @param pDays
 	 * @return
 	 * @throws NetworkErrorException
+	 * @throws FileNotFoundException
 	 */
-	private List<Stock[]> getStockInfoList(int pDays)
-			throws NetworkErrorException {
+	private List<Stock[]> getStockInfoListFromLocal(Date pEndingDay, int pDays)
+			throws NetworkErrorException, FileNotFoundException {
 		List<Stock[]> list = new ArrayList<Stock[]>();
 		int invailDay = 0;
 		for (int i = 0; i < pDays; i++) {
-			Date d = new Date();
 			Stock[] stock = null;
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			String strDate = df.format(new Date(d.getTime()
+			String strDate = df.format(new Date(pEndingDay.getTime()
 					- ((i + invailDay) * 24 * 60 * 60 * 1000)));
 			Date date2;
 			try {
@@ -370,7 +680,7 @@ public class StockBussisceFacde implements FacdeService{
 				boolean vaildDay = !isHolidayDay(date2);
 				while (!vaildDay) {
 					invailDay++;
-					strDate = df.format(new Date(d.getTime()
+					strDate = df.format(new Date(pEndingDay.getTime()
 							- ((i + invailDay) * 24 * 60 * 60 * 1000)));
 					date2 = df.parse(strDate);
 					vaildDay = !isHolidayDay(date2);
@@ -457,10 +767,10 @@ public class StockBussisceFacde implements FacdeService{
 			});
 		}
 	}
-	
-	public void uploadFile(final File pfile,final AsyncFileCallback pCallback){
+
+	public void uploadFile(final File pfile, final AsyncFileCallback pCallback) {
 		m_NetService.uploadFile(pfile, new AsyncFileCallback() {
-			
+
 			@Override
 			public void onSuccess(String pFileName, String url) {
 				// TODO Auto-generated method stub
@@ -469,13 +779,13 @@ public class StockBussisceFacde implements FacdeService{
 				netFileData.setUrl(url);
 				m_NetService.uploadNetFilesInfo(netFileData, pCallback);
 			}
-			
+
 			@Override
 			public void onProgress(int pRatio) {
 				// TODO Auto-generated method stub
 				pCallback.onProgress(pRatio);
 			}
-			
+
 			@Override
 			public void onError(int pCode, String pMsg) {
 				// TODO Auto-generated method stub
@@ -483,12 +793,9 @@ public class StockBussisceFacde implements FacdeService{
 			}
 		});
 	}
-	
-	public void downFile(String pUrl,AsyncFileCallback pCallback){
+
+	public void downFile(String pUrl, AsyncFileCallback pCallback) {
 		m_NetService.downFile(pUrl, pCallback);
 	}
-	
-	public void refreshDate(){
-		
-	}
+
 }
