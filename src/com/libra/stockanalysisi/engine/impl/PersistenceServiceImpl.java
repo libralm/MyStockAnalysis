@@ -23,8 +23,6 @@ class PersistenceServiceImpl implements IPersistenceService {
 
 	private File m_SavePathFile;
 
-	private final String M_DIRNAME = "Stock";
-
 	private final String M_BASESTOCK_INFO = "basestock";
 
 	public PersistenceServiceImpl() {
@@ -152,7 +150,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 
 	@SuppressLint("SimpleDateFormat")
 	@Override
-	public Stock[] readAllStocksDetailInfo(Date pStockDate) {
+	public Stock[] readAllStocksDetailInfo(Date pStockDate) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		String strDate = new SimpleDateFormat("yyyy-MM-dd").format(pStockDate);
 		FileInputStream fis;
@@ -175,6 +173,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw new FileNotFoundException();
 		} catch (IOException e) {
 			// TODO: handle exception
 			e.printStackTrace();
