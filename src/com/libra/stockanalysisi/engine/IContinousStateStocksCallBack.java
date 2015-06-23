@@ -9,7 +9,7 @@ import com.libra.stockanalysisi.bean.Stock;
  */
 public interface IContinousStateStocksCallBack {
 
-	void continusFallingStocks(Stock[] result);
+	void continusStatesStocks(Stock[] result);
 	
 	void onFailure(Throwable pThrowable);
 }
