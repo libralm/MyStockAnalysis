@@ -224,7 +224,7 @@ public class MainActivity extends ActionBarActivity implements
 					new IContinousStateStocksCallBack() {
 
 						@Override
-						public void continusFallingStocks(Stock[] result) {
+						public void continusStatesStocks(Stock[] result) {
 							// TODO Auto-generated method stub
 							m_CurState = FALLING_STATE;
 							mAdapter.setData(result);
@@ -247,7 +247,7 @@ public class MainActivity extends ActionBarActivity implements
 					new IContinousStateStocksCallBack() {
 
 						@Override
-						public void continusFallingStocks(Stock[] result) {
+						public void continusStatesStocks(Stock[] result) {
 							// TODO Auto-generated method stub
 							m_CurState = RISE_STATE;
 							mAdapter.setData(result);
