@@ -15,6 +15,7 @@ import com.libra.stockanalysisi.engine.IHolidayService;
 import com.libra.stockanalysisi.engine.IStockInfoService;
 import com.libra.stockanalysisi.engine.ITimeService;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
+import com.libra.stockanalysisi.engine.IDataSyncService.AllNetFilesCallback;
 
 class DataNetService implements IAllStockIDService,IStockInfoService,IHolidayService,ITimeService,IDataSyncService{
 	
@@ -75,9 +76,9 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	}
 
 	@Override
-	public void requestAllNetFiles(String pUrl, AllNetFilesCallback pCallback) {
+	public void requestNetFiles(Date pBeginDate, Date pEndDate, final AllNetFilesCallback pCallback) {
 		// TODO Auto-generated method stub
-		m_DataSyncService.requestAllNetFiles(pUrl, pCallback);
+		m_DataSyncService.requestNetFiles(pBeginDate, pEndDate, pCallback);
 	}
 
 	@Override
@@ -86,6 +87,4 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 		// TODO Auto-generated method stub
 		m_DataSyncService.uploadNetFilesInfo(pNetFileData, pCallback);
 	}
-	
-	
 }
