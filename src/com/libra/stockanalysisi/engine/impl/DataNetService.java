@@ -8,6 +8,7 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 
 import com.libra.stockanalysisi.bean.NetFileData;
+import com.libra.stockanalysisi.bean.Order;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
 import com.libra.stockanalysisi.engine.IAllStockIDService;
 import com.libra.stockanalysisi.engine.IDataSyncService;
@@ -86,5 +87,17 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 			AsyncFileCallback pCallback) {
 		// TODO Auto-generated method stub
 		m_DataSyncService.uploadNetFilesInfo(pNetFileData, pCallback);
+	}
+
+	@Override
+	public void uploadOrderInfo(Order order) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void queryOrderInfo(QueryOrderInfoCallback pCallback) {
+		// TODO Auto-generated method stub
+		
 	}
 }
