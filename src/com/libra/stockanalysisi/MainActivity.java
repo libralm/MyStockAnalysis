@@ -35,39 +35,39 @@ import com.libra.stockanalysisi.engine.impl.AppBussinessFacdeService;
 import com.libra.stockanalysisi.engine.impl.StockBussisceFacde;
 import com.libra.stockanalysisi.view.widget.ScaleWindowView;
 
-public class MainActivity extends ActionBarActivity implements 
-		IUpdateProgress, OnItemClickListener, OnEditorActionListener, OnClickListener {
+public class MainActivity extends ActionBarActivity implements IUpdateProgress,
+		OnItemClickListener, OnEditorActionListener, OnClickListener {
 
-	private EditText m_FallingET,m_RiseET;
-
+	private EditText m_FallingET, m_RiseET;
 
 	private ListView m_LV;
 
 	private StockBussisceFacde m_Facde;
 
-	private ProgressDialog m_UpdateDialog,m_CaculateProgress;
-	
+	private ProgressDialog m_UpdateDialog, m_CaculateProgress;
+
 	private ScaleWindowView m_WindowView;
 
 	private MyAdapter mAdapter;
-	
+
 	private final int FALLING_STATE = 1;
-	
+
 	private final int RISE_STATE = 0;
-	
+
 	private int m_CurState = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		AppBussinessFacdeService appService = new AppBussinessFacdeService(this);
-		m_Facde = (StockBussisceFacde) appService.getFacdeService(AppBussinessFacdeService.STOCK_FACDE_SERVICE);
+		m_Facde = (StockBussisceFacde) appService
+				.getFacdeService(AppBussinessFacdeService.STOCK_FACDE_SERVICE);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	m_FallingET = (EditText) findViewById(R.id.et_continusFallingDays);
-	m_FallingET.setOnEditorActionListener(this);
-	m_FallingET.setOnClickListener(this);
-	m_RiseET  = (EditText) findViewById(R.id.et_continusRiseDays);
-	m_RiseET.setOnEditorActionListener(this);
+		m_FallingET = (EditText) findViewById(R.id.et_continusFallingDays);
+		m_FallingET.setOnEditorActionListener(this);
+		m_FallingET.setOnClickListener(this);
+		m_RiseET = (EditText) findViewById(R.id.et_continusRiseDays);
+		m_RiseET.setOnEditorActionListener(this);
 		m_LV = (ListView) findViewById(R.id.list);
 		m_LV.setOnItemClickListener(this);
 		mAdapter = new MyAdapter();
@@ -106,7 +106,6 @@ public class MainActivity extends ActionBarActivity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-
 	@Override
 	public void update(int progress) {
 		// TODO Auto-generated method stub
@@ -127,7 +126,7 @@ public class MainActivity extends ActionBarActivity implements
 	class MyAdapter extends BaseAdapter {
 
 		private Stock[] mData;
-		
+
 		DecimalFormat mDF = new DecimalFormat("#0.00");
 
 		public MyAdapter() {
@@ -169,34 +168,47 @@ public class MainActivity extends ActionBarActivity implements
 			}
 			if (convertView.getTag() == null) {
 				ViewHolder holder = new ViewHolder();
-				holder.tx_Gid = (TextView) convertView.findViewById(R.id.tv_Gid);
-				holder.tx_Name = (TextView) convertView.findViewById(R.id.tv_StockName);
-				holder.tx_NowPri = (TextView) convertView.findViewById(R.id.tv_NowPri);
-				holder.tv_Percent = (TextView) convertView.findViewById(R.id.tv_Percent);
+				holder.tx_Gid = (TextView) convertView
+						.findViewById(R.id.tv_Gid);
+				holder.tx_Name = (TextView) convertView
+						.findViewById(R.id.tv_StockName);
+				holder.tx_NowPri = (TextView) convertView
+						.findViewById(R.id.tv_NowPri);
+				holder.tv_Percent = (TextView) convertView
+						.findViewById(R.id.tv_Percent);
 				convertView.setTag(holder);
 			}
 			ViewHolder holder = (ViewHolder) convertView.getTag();
 			holder.tx_Gid.setText(baseStock.getGid());
 			holder.tx_Name.setText(baseStock.getName());
-			holder.tx_NowPri.setText(baseStock.getNowPri()+"");
-			if(m_CurState == FALLING_STATE){				
-				if(baseStock.getNowPri() == 0){
+			holder.tx_NowPri.setText(baseStock.getNowPri() + "");
+			if (m_CurState == FALLING_STATE) {
+				if (baseStock.getNowPri() == 0) {
 					holder.tv_Percent.setText("停牌");
-					holder.tx_NowPri.setText(mDF.format(baseStock.getYestodEndPri())+"");
+					holder.tx_NowPri.setText(mDF.format(baseStock
+							.getYestodEndPri()) + "");
 					holder.tv_Percent.setBackgroundColor(Color.GRAY);
-				} else{					
-					holder.tv_Percent.setBackgroundColor(Color.parseColor("#FF2E8B57"));
-					holder.tv_Percent.setText(mDF.format((baseStock.getNowPri()-baseStock.getYestodEndPri())/baseStock.getYestodEndPri()*100)+"%");
+				} else {
+					holder.tv_Percent.setBackgroundColor(Color
+							.parseColor("#FF2E8B57"));
+					holder.tv_Percent
+							.setText(mDF.format((baseStock.getNowPri() - baseStock
+									.getYestodEndPri())
+									/ baseStock.getYestodEndPri() * 100)
+									+ "%");
 				}
-			} else if(m_CurState == RISE_STATE){
+			} else if (m_CurState == RISE_STATE) {
 				holder.tv_Percent.setBackgroundColor(Color.RED);
-				holder.tv_Percent.setText(mDF.format((baseStock.getNowPri()-baseStock.getYestodEndPri())/baseStock.getYestodEndPri()*100)+"%");
+				holder.tv_Percent
+						.setText(mDF.format((baseStock.getNowPri() - baseStock
+								.getYestodEndPri())
+								/ baseStock.getYestodEndPri() * 100) + "%");
 			}
 			return convertView;
 		}
 
 		class ViewHolder {
-			TextView tx_Gid,tx_Name,tx_NowPri,tv_Percent;
+			TextView tx_Gid, tx_Name, tx_NowPri, tv_Percent;
 		}
 	}
 
@@ -218,8 +230,8 @@ public class MainActivity extends ActionBarActivity implements
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		// TODO Auto-generated method stub
 		int id = v.getId();
-		String days =v.getText().toString();
-		if(id == R.id.et_continusFallingDays){
+		String days = v.getText().toString();
+		if (id == R.id.et_continusFallingDays) {
 			m_Facde.continuousFalling(Integer.parseInt(days),
 					new IContinousStateStocksCallBack() {
 
@@ -242,7 +254,7 @@ public class MainActivity extends ActionBarActivity implements
 							m_CaculateProgress.dismiss();
 						}
 					});
-		} else if(id == R.id.et_continusRiseDays){
+		} else if (id == R.id.et_continusRiseDays) {
 			m_Facde.continuousRise(Integer.parseInt(days),
 					new IContinousStateStocksCallBack() {
 
@@ -266,8 +278,9 @@ public class MainActivity extends ActionBarActivity implements
 						}
 					});
 		}
-		((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).
-	    hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+		((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+				.hideSoftInputFromWindow(this.getCurrentFocus()
+						.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		m_CaculateProgress.show();
 		return true;
 	}
@@ -278,10 +291,10 @@ public class MainActivity extends ActionBarActivity implements
 		DatePicker picker = new DatePicker(this);
 		Date vailidBeginDay = new Date(115, 5, 12);
 		Date vailidEndingDay = new Date();
-		picker.setVailidDays(vailidBeginDay,vailidEndingDay,Color.GREEN);
+		picker.setVailidDays(vailidBeginDay, vailidEndingDay, Color.GREEN);
 		final ScaleWindowView view = new ScaleWindowView(this, picker);
 		picker.setOnDateSelected(new OnDateSelected() {
-			
+
 			@Override
 			public void selected(List<String> date) {
 				// TODO Auto-generated method stub
