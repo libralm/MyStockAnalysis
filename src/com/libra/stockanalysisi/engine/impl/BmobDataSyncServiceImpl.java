@@ -17,6 +17,7 @@ import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
 import com.bmob.btp.callback.UploadListener;
 import com.libra.stockanalysisi.bean.NetFileData;
+import com.libra.stockanalysisi.bean.Order;
 import com.libra.stockanalysisi.engine.IDataSyncService;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 
@@ -125,6 +126,20 @@ public class BmobDataSyncServiceImpl implements IDataSyncService {
 		    	pCallback.onError(code, arg0);
 		    }
 		});
+	}
+
+
+	@Override
+	public void uploadOrderInfo(Order order) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void queryOrderInfo(QueryOrderInfoCallback pCallback) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
