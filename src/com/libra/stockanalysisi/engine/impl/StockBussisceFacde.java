@@ -29,6 +29,7 @@ import com.libra.stockanalysisi.engine.IDataSyncService.AllNetFilesCallback;
 import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
+import com.libra.stockanalysisi.engine.NetDataCallback;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
 import com.libra.stockanalysisi.engine.pay.IPayListener;
 import com.libra.stockanalysisi.engine.pay.IPayService;
@@ -76,6 +77,14 @@ public class StockBussisceFacde implements FacdeService {
 		m_PayService.payWeixin(pPayListener);
 	}
 
+	/**
+	 * 检查在此期间没有下载的文件
+	 * 
+	 * @param pBeginDate
+	 * @param pEndingDate
+	 * @return
+	 * @throws NetworkErrorException
+	 */
 	private Date[] checkNoDownloadFileDate(Date pBeginDate, Date pEndingDate)
 			throws NetworkErrorException {
 		List<Date> dates = new ArrayList<Date>();
@@ -108,147 +117,128 @@ public class StockBussisceFacde implements FacdeService {
 	public void caculateCustomDatesContinousFallingStocks(
 			final Date pBeginDate, final Date pEndingDate,
 			final IContinousStateStocksCallBack pCallback)
-			throws NetworkErrorException {
-		new AsyncTask<Void, Void, Stock[]>() {
-			int flag = -1;
-
+			{
+		long seconds = pEndingDate.getTime() - pBeginDate.getTime();
+		final int days = (int) (seconds / 1000 / 60 / 60 / 24);
+		new AsyncTask<Void, Void, Void>() {
 			@Override
-			protected Stock[] doInBackground(Void... params) {
+			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
-				Stock[] stocks = null;
 				try {
 					final Date[] noDownloadFile = checkNoDownloadFileDate(
 							pBeginDate, pEndingDate);
 					if (noDownloadFile.length > 0) {
-						flag = 0;
 						// 获取下载地址。
-						m_NetService.requestNetFiles(pBeginDate, pEndingDate,
-								new AllNetFilesCallback() {
+						requestDownloadFiles(pBeginDate, pEndingDate,
+								noDownloadFile,
+								new RequestDownloadNetFileDataCallback() {
 
 									@Override
 									public void onNetFilesData(
-											final List<NetFileData> pNetFileData) {
+											List<NetFileData> pNetFileData) {
 										// TODO Auto-generated method stub
-										final List<Stock[]> stockArrlist = new ArrayList<Stock[]>();
-										List<Date> list = Arrays
-												.asList(noDownloadFile);
-										int size = pNetFileData.size();
-										for (int i = 0; i < size; i++) {
-											NetFileData data = pNetFileData
-													.get(i);
-											String fileName = data
-													.getFileName();
-											for (int j = 0; j < list.size(); j++) {
-												if (new SimpleDateFormat(
-														"yyyy-MM-dd").format(
-														list.get(j)).equals(
-														fileName)) {
-													m_NetService.downFile(
-															data.getUrl(),
-															new AsyncFileCallback() {
+										downloadFiles(noDownloadFile,
+												pNetFileData,
+												new NetDataCallback() {
 
-																@Override
-																public void onSuccess(
-																		String pFileName,
-																		String url) {
-																	// TODO
-																	// Auto-generated
-																	// method
-																	// stub
-																	try {
-																		Stock[] detailInfo = m_PersistenceService
-																				.readAllStocksDetailInfo(new SimpleDateFormat(
-																						"yyyy-MM-dd")
-																						.parse(pFileName));
-																		stockArrlist
-																				.add(detailInfo);
-																		if (stockArrlist
-																				.size() == pNetFileData
-																				.size()) {
-																			Stock[] fallingStocks = caculateContinousFallingStocks(stockArrlist);
-																			pCallback
-																					.continusStatesStocks(fallingStocks);
-																		}
-																	} catch (FileNotFoundException e) {
-																		// TODO
-																		// Auto-generated
-																		// catch
-																		// block
-																		e.printStackTrace();
-																	} catch (ParseException e) {
-																		// TODO
-																		// Auto-generated
-																		// catch
-																		// block
-																		e.printStackTrace();
-																	}
-																}
+													@Override
+													public void onSuccess() {
+														// TODO Auto-generated
+														// method stub
+														continuousFallingFromLocal(pEndingDate, days, pCallback);
+													}
 
-																@Override
-																public void onProgress(
-																		int pRatio) {
-																	// TODO
-																	// Auto-generated
-																	// method
-																	// stub
+													@Override
+													public void onFailure(
+															int pCode,
+															String pMsg) {
+														// TODO Auto-generated
+														// method stub
 
-																}
-
-																@Override
-																public void onError(
-																		int pCode,
-																		String pMsg) {
-																	// TODO
-																	// Auto-generated
-																	// method
-																	// stub
-
-																}
-															});
-													list.remove(j);
-													break;
-												}
-											}
-										}
-									}
-
-									@Override
-									public void onError(int pCode, String pMsg) {
-										// TODO Auto-generated method stub
-
+													}
+												});
 									}
 								});
 					} else {
 						// 本地获取相应的数据开始分析。
-						long seconds = pEndingDate.getTime()
-								- pBeginDate.getTime();
-						int days = (int) (seconds / 1000 / 60 / 60 / 24);
-						List<Stock[]> list = null;
-						try {
-							list = getStockInfoListFromLocal(pEndingDate, days);
-						} catch (NetworkErrorException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						stocks = caculateContinousFallingStocks(list);
+						continuousFallingFromLocal(pEndingDate, days, pCallback);
 					}
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					pCallback.onFailure(e);
 				}
-				return stocks;
+				return null;
 			}
 
-			protected void onPostExecute(Stock[] result) {
-				if (flag != 0) {
-					pCallback.continusStatesStocks(result);
-				}
-
-			};
 		}.execute();
+	}
+	
+	
+	private void downloadFiles(
+			final Date[] pNoDownloadFile,
+			final List<NetFileData> pNetFileData,final NetDataCallback pCallback) {
+		List<Date> list = Arrays
+				.asList(pNoDownloadFile);
+		int size = pNetFileData.size();
+		//查询出的数据。
+		for (int i = 0; i < size; i++) {
+			NetFileData data = pNetFileData
+					.get(i);
+			String fileName = data
+					.getFileName();
+			//匹配本地不存在的数据
+			for (int j = 0; j < list.size(); j++) {
+				if (new SimpleDateFormat(
+						"yyyy-MM-dd").format(
+						list.get(j)).equals(
+						fileName)) {
+					m_NetService.downFile(
+							data.getUrl(),
+							new AsyncFileCallback() {
+								
+								int downloadNum = 0;
+
+								@Override
+								public void onSuccess(
+										String pFileName,
+										String url) {
+									// TODO
+									// Auto-generated
+									// method
+									// stub
+									downloadNum++;
+									if(downloadNum == pNoDownloadFile.length){
+										pCallback.onSuccess();
+									}
+								}
+
+								@Override
+								public void onProgress(
+										int pRatio) {
+									// TODO
+									// Auto-generated
+									// method
+									// stub
+
+								}
+
+								@Override
+								public void onError(
+										int pCode,
+										String pMsg) {
+									// TODO
+									// Auto-generated
+									// method
+									// stub
+
+								}
+							});
+					list.remove(j);
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -261,155 +251,104 @@ public class StockBussisceFacde implements FacdeService {
 	public void caculateCustomDatesContinousRiseStocks(final Date pBeginDate,
 			final Date pEndingDate,
 			final IContinousStateStocksCallBack pCallback) {
-		new AsyncTask<Void, Void, Stock[]>() {
-			int flag = -1;
-
+		long seconds = pEndingDate.getTime() - pBeginDate.getTime();
+		final int days = (int) (seconds / 1000 / 60 / 60 / 24);
+		new AsyncTask<Void, Void, Void>() {
 			@Override
-			protected Stock[] doInBackground(Void... params) {
+			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
-				Stock[] stocks = null;
 				try {
 					final Date[] noDownloadFile = checkNoDownloadFileDate(
 							pBeginDate, pEndingDate);
 					if (noDownloadFile.length > 0) {
-						flag = 0;
 						// 获取下载地址。
-						m_NetService.requestNetFiles(pBeginDate, pEndingDate,
-								new AllNetFilesCallback() {
+						requestDownloadFiles(pBeginDate, pEndingDate,
+								noDownloadFile,
+								new RequestDownloadNetFileDataCallback() {
 
 									@Override
 									public void onNetFilesData(
-											final List<NetFileData> pNetFileData) {
+											List<NetFileData> pNetFileData) {
 										// TODO Auto-generated method stub
-										final List<Stock[]> stockArrlist = new ArrayList<Stock[]>();
-										List<Date> list = Arrays
-												.asList(noDownloadFile);
-										int size = pNetFileData.size();
-										for (int i = 0; i < size; i++) {
-											NetFileData data = pNetFileData
-													.get(i);
-											String fileName = data
-													.getFileName();
-											for (int j = 0; j < list.size(); j++) {
-												if (new SimpleDateFormat(
-														"yyyy-MM-dd").format(
-														list.get(j)).equals(
-														fileName)) {
-													m_NetService.downFile(
-															data.getUrl(),
-															new AsyncFileCallback() {
+										downloadFiles(noDownloadFile,
+												pNetFileData,
+												new NetDataCallback() {
 
-																@Override
-																public void onSuccess(
-																		String pFileName,
-																		String url) {
-																	// TODO
-																	// Auto-generated
-																	// method
-																	// stub
-																	try {
-																		Stock[] detailInfo = m_PersistenceService
-																				.readAllStocksDetailInfo(new SimpleDateFormat(
-																						"yyyy-MM-dd")
-																						.parse(pFileName));
-																		stockArrlist
-																				.add(detailInfo);
-																		if (stockArrlist
-																				.size() == pNetFileData
-																				.size()) {
-																			Stock[] fallingStocks = caculateContinousRiseStocks(stockArrlist);
-																			pCallback
-																					.continusStatesStocks(fallingStocks);
-																		}
-																	} catch (FileNotFoundException e) {
-																		// TODO
-																		// Auto-generated
-																		// catch
-																		// block
-																		e.printStackTrace();
-																	} catch (ParseException e) {
-																		// TODO
-																		// Auto-generated
-																		// catch
-																		// block
-																		e.printStackTrace();
-																	}
-																}
+													@Override
+													public void onSuccess() {
+														// TODO Auto-generated
+														// method stub
+														continuousRiseFromLocal(
+																pEndingDate,
+																days, pCallback);
+													}
 
-																@Override
-																public void onProgress(
-																		int pRatio) {
-																	// TODO
-																	// Auto-generated
-																	// method
-																	// stub
+													@Override
+													public void onFailure(
+															int pCode,
+															String pMsg) {
+														// TODO Auto-generated
+														// method stub
 
-																}
-
-																@Override
-																public void onError(
-																		int pCode,
-																		String pMsg) {
-																	// TODO
-																	// Auto-generated
-																	// method
-																	// stub
-
-																}
-															});
-													list.remove(j);
-													break;
-												}
-											}
-										}
-									}
-
-									@Override
-									public void onError(int pCode, String pMsg) {
-										// TODO Auto-generated method stub
-
+													}
+												});
 									}
 								});
 					} else {
 						// 本地获取相应的数据开始分析。
-						long seconds = pEndingDate.getTime()
-								- pBeginDate.getTime();
-						int days = (int) (seconds / 1000 / 60 / 60 / 24);
-						List<Stock[]> list = null;
-						try {
-							list = getStockInfoListFromLocal(pEndingDate, days);
-						} catch (NetworkErrorException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						stocks = caculateContinousRiseStocks(list);
+						continuousRiseFromLocal(
+								pEndingDate,
+								days, pCallback);
 					}
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					pCallback.onFailure(e);
 				}
-				return stocks;
+				return null;
 			}
 
-			protected void onPostExecute(Stock[] result) {
-				if (flag != 0) {
-					pCallback.continusStatesStocks(result);
-				}
-
-			};
 		}.execute();
+	}
+	
+	/**
+	 * 请求下载文件的URL地址
+	 * @param pBeginDate
+	 * @param pEndingDate
+	 * @param pNoDownloadFile
+	 */
+	private void requestDownloadFiles(final Date pBeginDate,
+			final Date pEndingDate, final Date[] pNoDownloadFile,final RequestDownloadNetFileDataCallback callBack) {
+		m_NetService.requestNetFiles(pBeginDate, pEndingDate,
+				new AllNetFilesCallback() {
+
+					@Override
+					public void onNetFilesData(
+							final List<NetFileData> pNetFileData) {
+						// TODO Auto-generated method stub
+						callBack.onNetFilesData(pNetFileData);
+						
+					}
+
+					@Override
+					public void onError(int pCode, String pMsg) {
+						// TODO Auto-generated method stub
+
+					}
+				});
+	}
+	
+	interface RequestDownloadNetFileDataCallback{
+		public void onNetFilesData(List<NetFileData> pNetFileData);
 	}
 
 	/**
-	 * 连续下跌的股票
+	 * 连续下跌的股票（数据源都在本地）
 	 * 
 	 * @param days
 	 * @return
 	 */
-	public void continuousFalling(int days,
+	private void continuousFallingFromLocal(final Date pEndingDay, int days,
 			final IContinousStateStocksCallBack pCallBack) {
 		new AsyncTask<Integer, Void, Stock[]>() {
 
@@ -429,7 +368,7 @@ public class StockBussisceFacde implements FacdeService {
 					mThrowable = e;
 				}
 				try {
-					infoList = getStockInfoListFromLocal(new Date(), params[0]);
+					infoList = getStockInfoListFromLocal(pEndingDay, params[0]);
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -458,7 +397,7 @@ public class StockBussisceFacde implements FacdeService {
 	 * @param days
 	 * @return
 	 */
-	public void continuousRise(int days,
+	private void continuousRiseFromLocal(final Date pEndingDay, int days,
 			final IContinousStateStocksCallBack pCallBack) {
 		new AsyncTask<Integer, Void, Stock[]>() {
 
@@ -470,7 +409,7 @@ public class StockBussisceFacde implements FacdeService {
 					if (!m_NetService.isDealTime()) {
 						params[0]--;
 					}
-					infoList = getStockInfoListFromLocal(new Date(), params[0]);
+					infoList = getStockInfoListFromLocal(pEndingDay, params[0]);
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					pCallBack.onFailure(e);
@@ -797,5 +736,24 @@ public class StockBussisceFacde implements FacdeService {
 	public void downFile(String pUrl, AsyncFileCallback pCallback) {
 		m_NetService.downFile(pUrl, pCallback);
 	}
+
+	public void continuousRise(int pDays,
+			IContinousStateStocksCallBack pContinousStateStocksCallBack) {
+		// TODO Auto-generated method stub
+		int millseconds = 24*60*60*1000*pDays;
+		Date endingDate = new Date();
+		Date beginDate = new Date(endingDate.getTime()+millseconds);
+		caculateCustomDatesContinousRiseStocks(beginDate, endingDate, pContinousStateStocksCallBack);
+	}
+
+	public void continuousFalling(int pDays,
+			IContinousStateStocksCallBack pCallback) {
+		// TODO Auto-generated method stub
+		int millseconds = 24*60*60*1000*pDays;
+		Date endingDate = new Date();
+		Date beginDate = new Date(endingDate.getTime()+millseconds);
+		caculateCustomDatesContinousFallingStocks(beginDate, endingDate, pCallback);
+	}
+	
 
 }
