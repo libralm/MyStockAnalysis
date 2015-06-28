@@ -144,10 +144,10 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void loginBySmsCode(int pPhoneNum, String pSmscode,
+	public void loginBySmsCode(String pPhoneNum, String pSmscode,
 			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
-		BmobUser.loginBySMSCode(m_Context, pPhoneNum+"", pSmscode, new LogInListener<User>() {
+		BmobUser.loginBySMSCode(m_Context, pPhoneNum, pSmscode, new LogInListener<User>() {
 
 	        @Override
 	        public void done(User user, BmobException e) {
@@ -253,7 +253,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void requestSMSCode(int pPhoneNum, final NetDataCallback pCallback) {
+	public void requestSMSCode(String pPhoneNum, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobSMS.requestSMSCode(m_Context, pPhoneNum+"", "股票抄底", new RequestSMSCodeListener() {
 			
@@ -270,7 +270,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void verifySmsCode(int pPhoneNum, String pSMSCode,
+	public void verifySmsCode(String pPhoneNum, String pSMSCode,
 			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		BmobSMS.verifySmsCode(m_Context, pPhoneNum+"", pSMSCode, new VerifySMSCodeListener() {
@@ -288,9 +288,9 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void resetPasswordByPhone(int phoneNum, final NetDataCallback pCallback) {
+	public void resetPasswordByPhone(String phoneNum, final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
-		BmobSMS.requestSMSCode(m_Context, phoneNum+"","股票抄底", new RequestSMSCodeListener() {
+		BmobSMS.requestSMSCode(m_Context, phoneNum,"股票抄底", new RequestSMSCodeListener() {
 			
 			@Override
 			public void done(Integer arg0, BmobException arg1) {
@@ -305,7 +305,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public void bindingPhoneNum(final int pPhoneNum, String pSmsCode,
+	public void bindingPhoneNum(final String pPhoneNum, String pSmsCode,
 			final NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		verifySmsCode(pPhoneNum, pSmsCode, new NetDataCallback() {
@@ -314,7 +314,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 			public void onSuccess() {
 				// TODO Auto-generated method stub
 				User user =new User();
-				user.setMobilePhoneNumber(pPhoneNum+"");
+				user.setMobilePhoneNumber(pPhoneNum);
 				user.setMobilePhoneNumberVerified(true);
 				User cur = BmobUser.getCurrentUser(m_Context,User.class);
 				user.update(m_Context, cur.getObjectId(),new UpdateListener() {

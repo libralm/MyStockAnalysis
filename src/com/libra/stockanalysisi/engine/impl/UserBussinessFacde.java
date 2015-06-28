@@ -23,7 +23,7 @@ public class UserBussinessFacde implements IUserManagerService, FacdeService{
 	}
 
 	@Override
-	public void loginBySmsCode(int pPhoneNum, String pSmscode,
+	public void loginBySmsCode(String pPhoneNum, String pSmscode,
 			NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		m_UserManagerService.loginBySmsCode(pPhoneNum, pSmscode, pCallback);
@@ -67,26 +67,26 @@ public class UserBussinessFacde implements IUserManagerService, FacdeService{
 	}
 
 	@Override
-	public void requestSMSCode(int pPhoneNum, NetDataCallback pCallback) {
+	public void requestSMSCode(String pPhoneNum, NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		m_UserManagerService.requestSMSCode(pPhoneNum, pCallback);
 	}
 
 	@Override
-	public void verifySmsCode(int pPhoneNum, String pSMSCode,
+	public void verifySmsCode(String pPhoneNum, String pSMSCode,
 			NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		m_UserManagerService.verifySmsCode(pPhoneNum, pSMSCode, pCallback);
 	}
 
 	@Override
-	public void resetPasswordByPhone(int phoneNum, NetDataCallback pCallback) {
+	public void resetPasswordByPhone(String phoneNum, NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		m_UserManagerService.resetPasswordByPhone(phoneNum, pCallback);
 	}
 
 	@Override
-	public void bindingPhoneNum(int pPhoneNum, String pSmsCode,
+	public void bindingPhoneNum(String pPhoneNum, String pSmsCode,
 			NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
 		m_UserManagerService.bindingPhoneNum(pPhoneNum, pSmsCode, pCallback);

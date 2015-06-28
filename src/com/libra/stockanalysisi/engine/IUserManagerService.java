@@ -27,7 +27,7 @@ public interface IUserManagerService {
 	 * @param pSmscode
 	 * @param pCallback
 	 */
-	void loginBySmsCode(int pPhoneNum, String pSmscode, NetDataCallback pCallback);
+	void loginBySmsCode(String pPhoneNum, String pSmscode, NetDataCallback pCallback);
 	
 	/**
 	 * 得到当前用户
@@ -72,7 +72,7 @@ public interface IUserManagerService {
 	 * @param pPhoneNum
 	 * @param pCallback
 	 */
-	void requestSMSCode(int pPhoneNum, NetDataCallback pCallback);
+	void requestSMSCode(String pPhoneNum, NetDataCallback pCallback);
 	
 	/**
 	 * 验证验证码的合法性
@@ -80,14 +80,14 @@ public interface IUserManagerService {
 	 * @param pSMSCode
 	 * @param pCallback
 	 */
-	void verifySmsCode(int pPhoneNum,String pSMSCode, NetDataCallback pCallback);
+	void verifySmsCode(String pPhoneNum,String pSMSCode, NetDataCallback pCallback);
 	
 	/**
 	 * 通过手机号码重置密码
 	 * @param phoneNum
 	 * @param pCallback
 	 */
-	void resetPasswordByPhone(int phoneNum, NetDataCallback pCallback);
+	void resetPasswordByPhone(String phoneNum, NetDataCallback pCallback);
 	
 	/**
 	 * 绑定手机号码
@@ -95,6 +95,6 @@ public interface IUserManagerService {
 	 * @param pSmsCode
 	 * @param pCallback
 	 */
-	void bindingPhoneNum(int pPhoneNum,String pSmsCode, NetDataCallback pCallback);
+	void bindingPhoneNum(String pPhoneNum,String pSmsCode, NetDataCallback pCallback);
 	
 }
