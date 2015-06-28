@@ -19,10 +19,6 @@ public class Stock extends BaseStock {
 	private Double m_TraAmount; /* 成交金额 */
 	// 2012-12-11
 	private Date m_Date; /* 日期 */
-	
-	public Stock(){
-		setTableName("Stock");
-	}
 
 	public double getTodayStartPri() {
 		return m_TodayStartPri;

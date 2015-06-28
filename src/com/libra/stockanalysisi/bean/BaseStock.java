@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import cn.bmob.v3.BmobObject;
 
-public class BaseStock extends BmobObject implements Serializable{
+public class BaseStock implements Serializable{
 
 	/**
 	 * 
