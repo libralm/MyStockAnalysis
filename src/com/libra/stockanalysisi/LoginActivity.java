@@ -1,17 +1,21 @@
 package com.libra.stockanalysisi;
 
-import com.libra.stockanalysisi.engine.FacdeService;
-import com.libra.stockanalysisi.engine.NetDataCallback;
-import com.libra.stockanalysisi.engine.impl.AppBussinessFacdeService;
-import com.libra.stockanalysisi.engine.impl.UserBussinessFacde;
+import java.io.File;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.Editable;
+import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
+import com.libra.stockanalysisi.engine.IPersistenceService;
+import com.libra.stockanalysisi.engine.NetDataCallback;
+import com.libra.stockanalysisi.engine.impl.AppBussinessFacdeService;
+import com.libra.stockanalysisi.engine.impl.StockBussisceFacde;
+import com.libra.stockanalysisi.engine.impl.UserBussinessFacde;
 
 public class LoginActivity extends Activity implements OnClickListener {
 	
@@ -21,6 +25,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 
 	private UserBussinessFacde m_UBF;
 
+	private StockBussisceFacde m_SBF;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +35,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		setContentView(R.layout.activity_login);
 		AppBussinessFacdeService abf = new AppBussinessFacdeService(this);
 		m_UBF = (UserBussinessFacde) abf.getFacdeService(AppBussinessFacdeService.USER_FACDE_SERVICE);
+		m_SBF = (StockBussisceFacde) abf.getFacdeService(AppBussinessFacdeService.STOCK_FACDE_SERVICE);
 		initView();
 	}
 
@@ -54,7 +61,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 //			login(username,psd);
 //			xiugaimima("63077217@qq.com");
 //			requestSMSCode("18810812590");
-			bingPhoneNum();
+//			bingPhoneNum();
+			uploadFile();
 			break;
 
 		default:
@@ -154,5 +162,34 @@ public class LoginActivity extends Activity implements OnClickListener {
 				
 			}
 		});
+	}
+	
+	private void uploadFile(){
+		String path =Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+IPersistenceService.M_DIRNAME;
+		File dir = new File(path);
+		File[] files = dir.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			if(files[i].isFile()){				
+				m_SBF.uploadFile(files[i], new AsyncFileCallback() {
+					
+					@Override
+					public void onSuccess(String pFileName, String url) {
+						// TODO Auto-generated method stub
+						Toast.makeText(LoginActivity.this, "上传成功:"+pFileName, Toast.LENGTH_SHORT).show();
+					}
+					
+					@Override
+					public void onProgress(int pRatio) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void onError(int pCode, String pMsg) {
+						// TODO Auto-generated method stub
+						Toast.makeText(LoginActivity.this, "上传错误:"+pMsg, Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
+		}
 	}
 }
