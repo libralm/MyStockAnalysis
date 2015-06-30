@@ -22,6 +22,8 @@ import com.libra.stockanalysisi.engine.IPersistenceService;
 class PersistenceServiceImpl implements IPersistenceService {
 
 	private File m_SavePathFile;
+	
+	private final String M_BASESTOCK_DIR = "/base";
 
 	private final String M_BASESTOCK_INFO = "basestock";
 
@@ -34,10 +36,12 @@ class PersistenceServiceImpl implements IPersistenceService {
 	private void initSavePath() {
 		// TODO Auto-generated method stub
 		m_SavePathFile = new File(Environment.getExternalStorageDirectory()
-				.getAbsolutePath() + "/" + M_DIRNAME);
+				.getAbsolutePath() + "/" + M_DIRNAME+"/"+M_BASESTOCK_DIR);
 		if (!m_SavePathFile.exists()) {
 			m_SavePathFile.mkdirs();
 		}
+		m_SavePathFile = new File(Environment.getExternalStorageDirectory()
+				.getAbsolutePath() + "/" + M_DIRNAME);
 	}
 
 	@Override
@@ -49,7 +53,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
 				FileOutputStream fis;
-				File file = new File(m_SavePathFile, M_BASESTOCK_INFO);
+				File file = new File(m_SavePathFile+M_BASESTOCK_DIR, M_BASESTOCK_INFO);
 				try {
 					if (!file.exists()) {
 						file.createNewFile();
@@ -123,7 +127,7 @@ class PersistenceServiceImpl implements IPersistenceService {
 		// TODO Auto-generated method stub
 		FileInputStream fis;
 		BaseStock[] baseStocks = null;
-		File file = new File(m_SavePathFile, M_BASESTOCK_INFO);
+		File file = new File(m_SavePathFile+M_BASESTOCK_DIR, M_BASESTOCK_INFO);
 		try {
 			Gson gson = new GsonBuilder().create();
 			fis = new FileInputStream(file);
