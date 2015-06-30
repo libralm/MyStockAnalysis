@@ -2,8 +2,6 @@ package com.libra.stockanalysisi.bean;
 
 import java.io.Serializable;
 
-import cn.bmob.v3.BmobObject;
-
 public class BaseStock implements Serializable{
 
 	/**
