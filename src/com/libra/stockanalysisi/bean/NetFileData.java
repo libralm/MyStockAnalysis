@@ -16,6 +16,16 @@ public class NetFileData extends BmobObject{
 	private File m_LocalFile;
 	
 	private String m_FileName;
+	
+	private String m_OriFileName;
+
+	public String getOriFileName() {
+		return m_OriFileName;
+	}
+
+	public void setOriFileName(String pOriFileName) {
+		this.m_OriFileName = pOriFileName;
+	}
 
 	public String getFileName() {
 		return m_FileName;
