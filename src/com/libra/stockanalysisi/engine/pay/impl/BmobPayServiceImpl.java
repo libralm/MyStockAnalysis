@@ -3,9 +3,11 @@ package com.libra.stockanalysisi.engine.pay.impl;
 import android.app.Activity;
 
 import com.bmob.pay.tool.BmobPay;
+import com.bmob.pay.tool.OrderQueryListener;
 import com.bmob.pay.tool.PayListener;
 import com.libra.stockanalysisi.engine.pay.IPayListener;
 import com.libra.stockanalysisi.engine.pay.IPayService;
+import com.libra.stockanalysisi.engine.pay.QueryOrderInfoCallback;
 
 public class BmobPayServiceImpl implements IPayService {
 
@@ -82,6 +84,25 @@ public class BmobPayServiceImpl implements IPayService {
 			@Override
 			public void fail(int code, String reason) {
 				pPayListener.fail(code, reason);
+			}
+		});
+	}
+
+	@Override
+	public void queryOrderInfo(String pOrderId, QueryOrderInfoCallback pCallback) {
+		// TODO Auto-generated method stub
+		m_BmobPay.query(pOrderId, new OrderQueryListener() {
+			
+			@Override
+			public void succeed(String arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void fail(int arg0, String arg1) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}

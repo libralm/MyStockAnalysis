@@ -26,7 +26,7 @@ public interface IDataSyncService {
 	 * @param pPath
 	 * @param pCallback
 	 */
-	void downFile(String pUrl, AsyncFileCallback pCallback);
+	void downFile(NetFileData pNetFileData, AsyncFileCallback pCallback);
 	
 	/**
 	 * 请求指定网络文件
@@ -36,22 +36,18 @@ public interface IDataSyncService {
 	void requestNetFiles(Date pBeginDate, Date pEndDate, AllNetFilesCallback pCallback);
 	
 	/**
-	 * 上传网络文件的信息
+	 * 上传网络文件的基本信息
 	 * @param pUrl
 	 * @param pCallback
 	 */
 	void uploadNetFilesInfo(NetFileData pNetFileData, AsyncFileCallback pCallback);
 	
 	/**
-	 * 上传支付信息
-	 * @param order
+	 * 根据文件的唯一URL查找文件的信息。
+	 * @param url
+	 * @param pCallback
 	 */
-	void uploadOrderInfo(Order order);
-	
-	/**
-	 * 查询支付信息
-	 */
-	void queryOrderInfo(QueryOrderInfoCallback pCallback);
+	void queryNetFile(String url,QueryNetFileCallback pCallback);
 	
 	/**
 	 * 请求网络文件下载地址的集合
@@ -65,6 +61,11 @@ public interface IDataSyncService {
 		void onError(int pCode, String pMsg);
 	}
 	
+	/**
+	 * 同步文件信息回调
+	 * @author liaomin
+	 *
+	 */
 	public interface AsyncFileCallback {
 
 		public void onSuccess(String pFileName,String url);
@@ -74,9 +75,21 @@ public interface IDataSyncService {
 		public void onError(int pCode, String pMsg);
 	}
 	
-	public interface QueryOrderInfoCallback{
+	/**
+	 * 
+	 * @author liaomin
+	 *
+	 */
+	
+	
+	/**
+	 * 查询网络文件基本信息回调接口
+	 * @author liaomin
+	 *
+	 */
+	public interface QueryNetFileCallback{
 		
-		void onSuccess(Order pOrder);
+		void onSuccess(List<NetFileData> pNetFileDatas);
 		
 		void onFail(int pCode, String pReason);
 		

@@ -71,9 +71,9 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	}
 
 	@Override
-	public void downFile(String pUrl, AsyncFileCallback pCallback) {
+	public void downFile(NetFileData pNetFileData, AsyncFileCallback pCallback) {
 		// TODO Auto-generated method stub
-		m_DataSyncService.downFile(pUrl, pCallback);
+		m_DataSyncService.downFile(pNetFileData, pCallback);
 	}
 
 	@Override
@@ -90,14 +90,9 @@ class DataNetService implements IAllStockIDService,IStockInfoService,IHolidaySer
 	}
 
 	@Override
-	public void uploadOrderInfo(Order order) {
+	public void queryNetFile(String url, QueryNetFileCallback pCallback) {
 		// TODO Auto-generated method stub
-		
+		m_DataSyncService.queryNetFile(url, pCallback);
 	}
 
-	@Override
-	public void queryOrderInfo(QueryOrderInfoCallback pCallback) {
-		// TODO Auto-generated method stub
-		
-	}
 }

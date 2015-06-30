@@ -17,7 +17,6 @@ import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
 import com.bmob.btp.callback.UploadListener;
 import com.libra.stockanalysisi.bean.NetFileData;
-import com.libra.stockanalysisi.bean.Order;
 import com.libra.stockanalysisi.engine.IDataSyncService;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 
@@ -60,14 +59,15 @@ public class BmobDataSyncServiceImpl implements IDataSyncService {
 	}
 
 	@Override
-	public void downFile(final String pUrl, final AsyncFileCallback pCallback) {
+	public void downFile(final NetFileData pNetFileData, final AsyncFileCallback pCallback) {
 		// TODO Auto-generated method stub
-		BmobProFile.getInstance(m_Context).download(pUrl, new DownloadListener() {
+//		String signURL = BmobProFile.getInstance(m_Context).signURL(pNetFileData.getFileName(), "3ff85f23c599622753f9613836a7a6d5", "5166840a519e846a", 300, pNetFileData.getUrl());
+		BmobProFile.getInstance(m_Context).download(pNetFileData.getFileName(), new DownloadListener() {
 
             @Override
             public void onSuccess(String fullPath) {
                 // TODO Auto-generated method stub
-            	pCallback.onSuccess(fullPath, pUrl);
+            	pCallback.onSuccess(fullPath, pNetFileData.getUrl());
             }
 
             @Override
@@ -92,8 +92,8 @@ public class BmobDataSyncServiceImpl implements IDataSyncService {
 		String strEndDate = sdf.format(pEndDate);
 		BmobQuery<NetFileData> query = new BmobQuery<NetFileData>("NetFileData");
 		query.setLimit(1000);
-		query.addWhereGreaterThan("m_FileName", strBeginDae);
-		query.addWhereLessThan("m_FileName", strEndDate);
+		query.addWhereGreaterThan("m_OriFileName", strBeginDae);
+		query.addWhereLessThanOrEqualTo("m_OriFileName", strEndDate);
 		query.findObjects(m_Context, new FindListener<NetFileData>() {
 			
 			@Override
@@ -130,16 +130,26 @@ public class BmobDataSyncServiceImpl implements IDataSyncService {
 
 
 	@Override
-	public void uploadOrderInfo(Order order) {
+	public void queryNetFile(String url, final QueryNetFileCallback pCallback) {
 		// TODO Auto-generated method stub
-		
+		BmobQuery<NetFileData> query = new BmobQuery<NetFileData>();
+		BmobQuery<NetFileData> contains = query.addWhereEqualTo("m_Url", url);
+		contains.findObjects(m_Context, new FindListener<NetFileData>(){
+
+			@Override
+			public void onError(int arg0, String arg1) {
+				// TODO Auto-generated method stub
+				pCallback.onFail(arg0, arg1);
+			}
+
+			@Override
+			public void onSuccess(List<NetFileData> arg0) {
+				// TODO Auto-generated method stub
+				pCallback.onSuccess(arg0);
+			}
+			
+		});
 	}
 
-
-	@Override
-	public void queryOrderInfo(QueryOrderInfoCallback pCallback) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }
