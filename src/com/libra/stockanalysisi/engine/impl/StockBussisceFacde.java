@@ -182,7 +182,7 @@ public class StockBussisceFacde implements FacdeService {
 		//查询出的数据。
 		for (int i = 0; i < size; i++) {
 			NetFileData data = pNetFileData.get(i);
-			String fileName = data.getFileName();
+			String fileName = data.getOriFileName();
 			//匹配本地不存在的数据
 			for (int j = 0; j < noDownloadFiles.size(); j++) {
 				if (new SimpleDateFormat("yyyy-MM-dd").format(noDownloadFiles.get(j)).equals(fileName)) {
