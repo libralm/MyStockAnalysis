@@ -1,5 +1,6 @@
 package com.libra.stockanalysisi;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,7 +32,9 @@ import cn.aigestudio.datepicker.views.DatePicker;
 
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
+import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
+import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
 import com.libra.stockanalysisi.engine.impl.AppBussinessFacdeService;
 import com.libra.stockanalysisi.engine.impl.StockBussisceFacde;
 import com.libra.stockanalysisi.view.widget.ScaleWindowView;
@@ -102,8 +106,39 @@ public class MainActivity extends ActionBarActivity implements IUpdateProgress,
 			m_UpdateDialog.show();
 			m_Facde.updateData(this);
 			return true;
+		} else if (id == R.id.action_uploadfile){
+			uploadFile();
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void uploadFile(){
+		String path =Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+IPersistenceService.M_DIRNAME;
+		File dir = new File(path);
+		File[] files = dir.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			if(files[i].isFile()){				
+				m_Facde.uploadFile(files[i], new AsyncFileCallback() {
+					
+					@Override
+					public void onSuccess(String pFileName, String url) {
+						// TODO Auto-generated method stub
+						Toast.makeText(MainActivity.this, "上传成功:"+pFileName, Toast.LENGTH_SHORT).show();
+					}
+					
+					@Override
+					public void onProgress(int pRatio) {
+						// TODO Auto-generated method stub
+					}
+					
+					@Override
+					public void onError(int pCode, String pMsg) {
+						// TODO Auto-generated method stub
+						Toast.makeText(MainActivity.this, "上传错误:"+pMsg, Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
+		}
 	}
 
 	@Override

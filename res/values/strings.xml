@@ -6,4 +6,6 @@
     <string name="action_settings">更新数据</string>
     <string name="continueFallingDays">连跌天数</string>
 	<string name="continueRiseDays">连涨天数</string>
+	<string name="action_uploadfile">上传文件</string>
 </resources>
+
