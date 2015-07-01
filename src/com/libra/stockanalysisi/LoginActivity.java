@@ -62,7 +62,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 //			xiugaimima("63077217@qq.com");
 //			requestSMSCode("18810812590");
 //			bingPhoneNum();
-			uploadFile();
 			break;
 
 		default:
@@ -164,32 +163,5 @@ public class LoginActivity extends Activity implements OnClickListener {
 		});
 	}
 	
-	private void uploadFile(){
-		String path =Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+IPersistenceService.M_DIRNAME;
-		File dir = new File(path);
-		File[] files = dir.listFiles();
-		for (int i = 0; i < files.length; i++) {
-			if(files[i].isFile()){				
-				m_SBF.uploadFile(files[i], new AsyncFileCallback() {
-					
-					@Override
-					public void onSuccess(String pFileName, String url) {
-						// TODO Auto-generated method stub
-						Toast.makeText(LoginActivity.this, "上传成功:"+pFileName, Toast.LENGTH_SHORT).show();
-					}
-					
-					@Override
-					public void onProgress(int pRatio) {
-						// TODO Auto-generated method stub
-					}
-					
-					@Override
-					public void onError(int pCode, String pMsg) {
-						// TODO Auto-generated method stub
-						Toast.makeText(LoginActivity.this, "上传错误:"+pMsg, Toast.LENGTH_SHORT).show();
-					}
-				});
-			}
-		}
-	}
+	
 }
