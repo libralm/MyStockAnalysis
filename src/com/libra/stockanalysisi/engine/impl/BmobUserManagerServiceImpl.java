@@ -323,7 +323,7 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 				    public void onSuccess() {
 				        // TODO Auto-generated method stub
 				    	pCallback.onSuccess();
-				    }
+				    }	
 
 				    @Override
 				    public void onFailure(int arg0, String arg1) {
