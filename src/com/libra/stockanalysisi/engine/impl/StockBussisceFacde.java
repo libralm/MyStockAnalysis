@@ -175,10 +175,16 @@ public class StockBussisceFacde implements FacdeService {
 		}.execute();
 	}
 	
-	
+	/**
+	 * 根据一个时间区间，下载未在本地的文件
+	 * @param pNoDownloadFile
+	 * @param pNetFileData
+	 * @param pCallback
+	 */
 	private void downloadFiles(final Date[] pNoDownloadFile,final List<NetFileData> pNetFileData,final NetDataCallback pCallback) {
 		List<Date> noDownloadFiles = Arrays.asList(pNoDownloadFile);
 		int size = pNetFileData.size();
+		List<NetFileData> needDownloadFile = new ArrayList<NetFileData>();
 		//查询出的数据。
 		for (int i = 0; i < size; i++) {
 			NetFileData data = pNetFileData.get(i);
@@ -186,31 +192,48 @@ public class StockBussisceFacde implements FacdeService {
 			//匹配本地不存在的数据
 			for (int j = 0; j < noDownloadFiles.size(); j++) {
 				if (new SimpleDateFormat("yyyy-MM-dd").format(noDownloadFiles.get(j)).equals(fileName)) {
-					m_NetService.downFile(data, new AsyncFileCallback() {
-								
-					int downloadNum = 0;
-
-					@Override
-					public void onSuccess(String pFileName,String url) {
-						downloadNum++;
-						if(downloadNum == pNoDownloadFile.length){
-							pCallback.onSuccess();
-						}
-					}
-
-					@Override
-					public void onProgress(int pRatio) {
-					}
-
-					@Override
-					public void onError(int pCode, String pMsg) {
-					}
-				});
+					needDownloadFile.add(data);
 				noDownloadFiles.remove(fileName);
 				break;
 				}
 			}
 		}
+		iteraterDownload(needDownloadFile,0,pCallback);
+	}
+	
+	/**
+	 * 迭代下载文件
+	 * @param pNeedDownloadFiles
+	 * @param pPosition
+	 * @param pCallback
+	 */
+	private void iteraterDownload(final List<NetFileData> pNeedDownloadFiles, final int pPosition, final NetDataCallback pCallback) {
+		// TODO Auto-generated method stub
+		NetFileData data = pNeedDownloadFiles.get(pPosition);
+		m_NetService.downFile(data, new AsyncFileCallback() {
+			
+			@Override
+			public void onSuccess(String pFileName,String url) {
+				int nextPosition = pPosition + 1;
+				pCallback.onSuccess();
+				if(nextPosition < pNeedDownloadFiles.size()){
+					iteraterDownload(pNeedDownloadFiles, nextPosition, pCallback);
+				}
+			}
+
+			@Override
+			public void onProgress(int pRatio) {
+			}
+
+			@Override
+			public void onError(int pCode, String pMsg) {
+				int nextPosition = pPosition + 1;
+				pCallback.onFailure(pCode, pMsg);
+				if(nextPosition < pNeedDownloadFiles.size()){
+					iteraterDownload(pNeedDownloadFiles, nextPosition, pCallback);
+				}
+			}
+		});
 	}
 
 	/**
@@ -408,6 +431,8 @@ public class StockBussisceFacde implements FacdeService {
 		new AsyncTask<Void, Void, Void>() {
 
 			Throwable mThrowable;
+			
+			boolean noNeedDL;
 
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -415,6 +440,8 @@ public class StockBussisceFacde implements FacdeService {
 				try {
 					if (!isHolidayDay(new Date()) && m_NetService.isDealTime()) {
 						downloadAllBaseStocksInfo();
+					} else{
+						noNeedDL = true;
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -432,6 +459,8 @@ public class StockBussisceFacde implements FacdeService {
 				if (mThrowable != null) {
 					pUpdateCallback.onFailure(mThrowable);
 					return;
+				} else if(noNeedDL){
+					pUpdateCallback.onFinish();
 				}
 			};
 
@@ -456,7 +485,6 @@ public class StockBussisceFacde implements FacdeService {
 	 * @param pStockInfoList
 	 */
 	private Stock[] caculateContinousFallingStocks(List<Stock[]> pStockInfoList) {
-		// TODO Auto-generated method stub
 		List<BaseStock> list = new ArrayList<BaseStock>();
 		int size = pStockInfoList.size();
 		Map<String, Stock[]> gidStockMap = new HashMap<String, Stock[]>();
@@ -632,7 +660,7 @@ public class StockBussisceFacde implements FacdeService {
 					}.execute(stocks);
 				}
 				BaseStock[] stocks2 = Arrays.copyOfRange(pBaseStocks, avgNum
-						* (splitNum - 1), length);
+						* (splitNum - 1), length);	
 				downloadAllStockDetailInfo(stocks2, list, length);
 			}
 		});
@@ -734,14 +762,6 @@ public class StockBussisceFacde implements FacdeService {
 		});
 	}
 
-	/**
-	 * 下载文件
-	 * @param pUrl
-	 * @param pCallback
-	 */
-	public void downFile(NetFileData pNetFileData, AsyncFileCallback pCallback) {
-		m_NetService.downFile(pNetFileData, pCallback);
-	}
 	
 	/**
 	 * 持续上涨
@@ -770,6 +790,5 @@ public class StockBussisceFacde implements FacdeService {
 		Date beginDate = new Date(endingDate.getTime()-millseconds);
 		caculateCustomDatesContinousFallingStocks(beginDate, endingDate, pCallback);
 	}
-	
 
 }
