@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Environment;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
@@ -25,11 +24,13 @@ public class BmobDataSyncServiceImpl implements IDataSyncService {
 	
 	private Context m_Context;
 	
+	private File m_SaveFile;
+	
 	public BmobDataSyncServiceImpl(Context pContext){
 		m_Context = pContext;
-		File file = new File(Environment.getExternalStorageDirectory()
+		m_SaveFile = new File(Environment.getExternalStorageDirectory()
 				.getAbsolutePath() + "/" + IPersistenceService.M_DIRNAME);
-		BmobConfiguration config = new BmobConfiguration.Builder(pContext).customExternalCacheDir(file.getAbsolutePath()).build();
+		BmobConfiguration config = new BmobConfiguration.Builder(pContext).customExternalCacheDir("Stock").build();
 		BmobPro.getInstance(pContext).initConfig(config);
 	}
 	
@@ -62,28 +63,43 @@ public class BmobDataSyncServiceImpl implements IDataSyncService {
 	@Override
 	public void downFile(final NetFileData pNetFileData, final AsyncFileCallback pCallback) {
 		// TODO Auto-generated method stub
-		String signURL = BmobProFile.getInstance(m_Context).signURL(pNetFileData.getFileName(), "3ff85f23c599622753f9613836a7a6d5", "5166840a519e846a", 300, pNetFileData.getUrl());
 		BmobProFile.getInstance(m_Context).download(pNetFileData.getFileName(), new DownloadListener() {
 
             @Override
             public void onSuccess(String fullPath) {
                 // TODO Auto-generated method stub
-            	System.out.println("下载路径："+fullPath);
-            	pCallback.onSuccess(fullPath, pNetFileData.getUrl());
+            	String newFullPath = moveAndRenameFile(fullPath,pNetFileData.getOriFileName());
+            	pCallback.onSuccess(newFullPath, pNetFileData.getUrl());
+            	System.out.println("下载成功："+fullPath);
             }
 
-            @Override
+			/**
+             * 修改文件名
+             * @param fullPath
+             * @param oriFileName
+             * @return
+             */
+            private String moveAndRenameFile(String fullPath, String oriFileName) {
+				// TODO Auto-generated method stub
+            	File file = new File(fullPath);
+            	File newFile = new File(m_SaveFile,oriFileName);
+            	file.renameTo(newFile);
+            	file.delete();
+            	return newFile.getAbsolutePath();
+			}
+
+			@Override
             public void onProgress(String localPath, int percent) {
                 // TODO Auto-generated method stub
-            	System.out.println("下载本地路径："+localPath);
             	pCallback.onProgress(percent);
+            	System.out.println("下载百分比："+localPath+":"+percent);
             }
 
             @Override
             public void onError(int statuscode, String errormsg) {
                 // TODO Auto-generated method stub
-            	System.out.println("下载错误："+errormsg);
             	pCallback.onError(statuscode, errormsg);
+            	System.out.println("下载错误信息：："+errormsg);
             }
         });
 	}
