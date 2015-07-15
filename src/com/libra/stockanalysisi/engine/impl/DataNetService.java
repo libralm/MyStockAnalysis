@@ -8,7 +8,6 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 
 import com.libra.stockanalysisi.bean.NetFileData;
-import com.libra.stockanalysisi.bean.Order;
 import com.libra.stockanalysisi.engine.BaseStockInfoCallBack;
 import com.libra.stockanalysisi.engine.IAllStockIDService;
 import com.libra.stockanalysisi.engine.IDataSyncService;
@@ -16,7 +15,6 @@ import com.libra.stockanalysisi.engine.IHolidayService;
 import com.libra.stockanalysisi.engine.IStockInfoService;
 import com.libra.stockanalysisi.engine.ITimeService;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
-import com.libra.stockanalysisi.engine.IDataSyncService.AllNetFilesCallback;
 
 class DataNetService implements IAllStockIDService,IStockInfoService,IHolidayService,ITimeService,IDataSyncService{
 	
