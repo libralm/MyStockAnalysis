@@ -215,9 +215,10 @@ public class StockBussisceFacde implements FacdeService {
 			@Override
 			public void onSuccess(String pFileName,String url) {
 				int nextPosition = pPosition + 1;
-				pCallback.onSuccess();
 				if(nextPosition < pNeedDownloadFiles.size()){
 					iteraterDownload(pNeedDownloadFiles, nextPosition, pCallback);
+				} else{					
+					pCallback.onSuccess();
 				}
 			}
 
