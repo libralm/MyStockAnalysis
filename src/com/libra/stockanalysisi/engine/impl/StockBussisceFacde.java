@@ -768,28 +768,88 @@ public class StockBussisceFacde implements FacdeService {
 	 * 持续上涨
 	 * @param pDays
 	 * @param pContinousStateStocksCallBack
+	 * @throws NetworkErrorException 
 	 */
-	public void continuousRise(int pDays,
-			IContinousStateStocksCallBack pContinousStateStocksCallBack) {
+	public void continuousRise(final int pDays,
+			final IContinousStateStocksCallBack pCallback){
 		// TODO Auto-generated method stub
-		int millseconds = 24*60*60*1000*pDays;
-		Date endingDate = new Date();
-		Date beginDate = new Date(endingDate.getTime()-millseconds);
-		caculateCustomDatesContinousRiseStocks(beginDate, endingDate, pContinousStateStocksCallBack);
+		new AsyncTask<Integer, Void, Void>(){
+
+			@Override
+			protected Void doInBackground(Integer... params) {
+				// TODO Auto-generated method stub
+				Date endingDate = new Date();
+				Date beginDate = null;
+				try {
+					beginDate = getBeginDay(pDays, endingDate);
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					pCallback.onFailure(e);
+				}
+				caculateCustomDatesContinousRiseStocks(beginDate, endingDate, pCallback);
+				return null;
+			}
+		}.execute(pDays);
 	}
+
+	
 	
 	/**
 	 * 持续下跌
 	 * @param pDays
 	 * @param pCallback
+	 * @throws NetworkErrorException 
 	 */
-	public void continuousFalling(int pDays,
-			IContinousStateStocksCallBack pCallback) {
+	public void continuousFalling(final int pDays,
+			final IContinousStateStocksCallBack pCallback){
 		// TODO Auto-generated method stub
-		int millseconds = 24*60*60*1000*pDays;
-		Date endingDate = new Date();
-		Date beginDate = new Date(endingDate.getTime()-millseconds);
-		caculateCustomDatesContinousFallingStocks(beginDate, endingDate, pCallback);
+		new AsyncTask<Integer, Void, Void>(){
+
+			@Override
+			protected Void doInBackground(Integer... params) {
+				// TODO Auto-generated method stub
+				Date endingDate = new Date();
+				Date beginDate = null;
+				try {
+					beginDate = getBeginDay(pDays, endingDate);
+				} catch (NetworkErrorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					pCallback.onFailure(e);
+				}
+				caculateCustomDatesContinousFallingStocks(beginDate, endingDate, pCallback);
+				return null;
+			}
+			
+		}.execute(pDays);
 	}
 
+	private Date getBeginDay(int pDays, Date endingDate)
+			throws NetworkErrorException {
+		int invailDay = 0;
+		for (int i = 0; i < pDays; i++) {
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String strDate = df.format(new Date(endingDate.getTime()
+					- ((i + invailDay) * 24 * 60 * 60 * 1000)));
+			Date date2;
+			try {
+				date2 = df.parse(strDate);
+				boolean vaildDay = !isHolidayDay(date2);
+				while(!vaildDay) {
+					invailDay++;
+					strDate = df.format(new Date(endingDate.getTime()
+							- ((i + invailDay) * 24 * 60 * 60 * 1000)));
+					date2 = df.parse(strDate);
+					vaildDay = !isHolidayDay(date2);
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		int millseconds = 24*60*60*1000*(pDays+invailDay);
+		Date beginDate = new Date(endingDate.getTime()-millseconds);
+		return beginDate;
+	}
 }
