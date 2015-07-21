@@ -12,4 +12,6 @@ public interface IContinousStateStocksCallBack {
 	void continusStatesStocks(Stock[] result);
 	
 	void onFailure(Throwable pThrowable);
+	
+	void onProgressInfo(String pMsg);
 }
