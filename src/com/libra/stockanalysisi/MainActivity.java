@@ -288,6 +288,19 @@ public class MainActivity extends ActionBarActivity implements IUpdateProgress,
 									Toast.LENGTH_SHORT).show();
 							m_CaculateProgress.dismiss();
 						}
+
+						@Override
+						public void onProgressInfo(final String pMsg) {
+							// TODO Auto-generated method stub
+							m_LV.post(new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									m_CaculateProgress.setMessage(pMsg);
+								}
+							});
+						}
 					});
 		} else if (id == R.id.et_continusRiseDays) {
 			m_Facde.continuousRise(Integer.parseInt(days),
@@ -310,6 +323,12 @@ public class MainActivity extends ActionBarActivity implements IUpdateProgress,
 							Toast.makeText(MainActivity.this, "网络错误",
 									Toast.LENGTH_SHORT).show();
 							m_CaculateProgress.dismiss();
+						}
+
+						@Override
+						public void onProgressInfo(String pMsg) {
+							// TODO Auto-generated method stub
+							
 						}
 					});
 		}
