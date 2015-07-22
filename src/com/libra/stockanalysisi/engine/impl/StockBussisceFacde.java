@@ -138,28 +138,41 @@ public class StockBussisceFacde implements FacdeService {
 									public void onNetFilesData(
 											List<NetFileData> pNetFileData) {
 										// TODO Auto-generated method stub
-										pCallback.onProgressInfo("下载股票数据……");
-										downloadFiles(noDownloadFile,
-												pNetFileData,
-												new NetDataCallback() {
+										
+										if(pNetFileData.size() > 0){
+											pCallback.onProgressInfo("下载股票数据……");
+											downloadFiles(noDownloadFile,
+													pNetFileData,
+													new NetDataCallback() {
+												
+												@Override
+												public void onSuccess() {
+													// TODO Auto-generated
+													// method stub
+													pCallback.onProgressInfo("开始分析股票数据……");
+													continuousFallingFromLocal(pEndingDate, pBeginDate, pCallback);
+												}
+												
+												@Override
+												public void onFailure(
+														int pCode,
+														String pMsg) {
+													// TODO Auto-generated
+													// method stub
+													
+												}
 
-													@Override
-													public void onSuccess() {
-														// TODO Auto-generated
-														// method stub
-														pCallback.onProgressInfo("开始分析股票数据……");
-														continuousFallingFromLocal(pEndingDate, pBeginDate, pCallback);
-													}
-
-													@Override
-													public void onFailure(
-															int pCode,
-															String pMsg) {
-														// TODO Auto-generated
-														// method stub
-
-													}
-												});
+												@Override
+												public void onSkip() {
+													// TODO Auto-generated method stub
+													pCallback.onProgressInfo("开始分析股票数据……");
+													continuousFallingFromLocal(new Date(pEndingDate.getTime() - (24*60*60*1000)), new Date(pBeginDate.getTime() - (24*60*60*1000)), pCallback);
+												}
+											});
+										} else{
+											pCallback.onProgressInfo("开始分析股票数据……");
+											continuousFallingFromLocal(new Date(pEndingDate.getTime() - (24*60*60*1000)), new Date(pBeginDate.getTime() - (24*60*60*1000)), pCallback);
+										}
 									}
 								});
 					} else {
@@ -201,7 +214,11 @@ public class StockBussisceFacde implements FacdeService {
 				}
 			}
 		}
-		iteraterDownload(needDownloadFile,0,pCallback);
+		if(needDownloadFile.size() > 0){			
+			iteraterDownload(needDownloadFile,0,pCallback);
+		} else{
+			pCallback.onSkip();
+		}
 	}
 	
 	/**
@@ -269,31 +286,43 @@ public class StockBussisceFacde implements FacdeService {
 									public void onNetFilesData(
 											List<NetFileData> pNetFileData) {
 										// TODO Auto-generated method stub
-										pCallback.onProgressInfo("下载股票数据……");
-										downloadFiles(noDownloadFile,
-												pNetFileData,
-												new NetDataCallback() {
+										if(pNetFileData.size() > 0){											
+											pCallback.onProgressInfo("下载股票数据……");
+											downloadFiles(noDownloadFile,
+													pNetFileData,
+													new NetDataCallback() {
+												
+												@Override
+												public void onSuccess() {
+													// TODO Auto-generated
+													// method stub
+													pCallback.onProgressInfo("开始分析股票数据……");
+													continuousRiseFromLocal(
+															pEndingDate,
+															pBeginDate, pCallback);
+												}
+												
+												@Override
+												public void onFailure(
+														int pCode,
+														String pMsg) {
+													// TODO Auto-generated
+													// method stub
+													pCallback.onProgressInfo("开始分析股票数据……");
+													continuousRiseFromLocal(new Date(pEndingDate.getTime() - (24*60*60*1000)), new Date(pBeginDate.getTime() - (24*60*60*1000)), pCallback);
+												}
 
-													@Override
-													public void onSuccess() {
-														// TODO Auto-generated
-														// method stub
-														pCallback.onProgressInfo("开始分析股票数据……");
-														continuousRiseFromLocal(
-																pEndingDate,
-																pBeginDate, pCallback);
-													}
-
-													@Override
-													public void onFailure(
-															int pCode,
-															String pMsg) {
-														// TODO Auto-generated
-														// method stub
-
-													}
-												});
-									}
+												@Override
+												public void onSkip() {
+													// TODO Auto-generated method stub
+													
+												}
+											});
+										} else{
+											pCallback.onProgressInfo("开始分析股票数据……");
+											continuousRiseFromLocal(new Date(pEndingDate.getTime() - (24*60*60*1000)), new Date(pBeginDate.getTime() - (24*60*60*1000)), pCallback);
+										}
+										}
 								});
 					} else {
 						// 本地获取相应的数据开始分析。
@@ -361,9 +390,6 @@ public class StockBussisceFacde implements FacdeService {
 				List<Stock[]> infoList = null;
 				try {
 					infoList = getStockInfoListFromLocal(pEndingDay, params[0]);
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -399,9 +425,6 @@ public class StockBussisceFacde implements FacdeService {
 				List<Stock[]> infoList = null;
 				try {
 					infoList = getStockInfoListFromLocal(pEndingDay, params[0]);
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (NetworkErrorException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -629,14 +652,20 @@ public class StockBussisceFacde implements FacdeService {
 		return list;
 	}
 	
-	private List<Stock[]> getStockInfoListFromLocal(Date pEndingDay, Date pBeginDay) throws FileNotFoundException, NetworkErrorException{
+	private List<Stock[]> getStockInfoListFromLocal(Date pEndingDay, Date pBeginDay) throws NetworkErrorException{
 		List<Stock[]> list = new ArrayList<Stock[]>();
 		long millsecond = 24*60*60*1000;
 		Date curDate = pBeginDay;
 		while((curDate = new Date(millsecond + curDate.getTime())).compareTo(pEndingDay) <= 0){
 			if(!isHolidayDay(curDate)){
-				Stock[] stocks = readDetailStocksInfo(curDate);
-				list.add(stocks);
+				Stock[] stocks;
+				try {
+					stocks = readDetailStocksInfo(curDate);
+					list.add(stocks);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		return list;
