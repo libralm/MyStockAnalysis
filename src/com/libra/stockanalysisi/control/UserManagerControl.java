@@ -36,6 +36,12 @@ public class UserManagerControl {
 				// TODO Auto-generated method stub
 				
 			}
+
+			@Override
+			public void onSkip() {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 	}
 	
@@ -53,6 +59,12 @@ public class UserManagerControl {
 			public void onFailure(int pCode, String pMsg) {
 				// TODO Auto-generated method stub
 				Toast.makeText(m_Context, pMsg, Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSkip() {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}
@@ -72,6 +84,12 @@ public class UserManagerControl {
 			public void onFailure(int pCode, String pMsg) {
 				// TODO Auto-generated method stub
 				Toast.makeText(m_Context, pMsg, Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSkip() {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}
@@ -93,6 +111,12 @@ public class UserManagerControl {
 				Toast.makeText(m_Context, pMsg, Toast.LENGTH_SHORT).show();
 
 			}
+
+			@Override
+			public void onSkip() {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 	}
 
@@ -110,6 +134,12 @@ public class UserManagerControl {
 			public void onFailure(int pCode, String pMsg) {
 				// TODO Auto-generated method stub
 				Toast.makeText(m_Context, "注册失败", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSkip() {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}
