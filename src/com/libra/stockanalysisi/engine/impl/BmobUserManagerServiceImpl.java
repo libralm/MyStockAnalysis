@@ -338,6 +338,12 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 				// TODO Auto-generated method stub
 				
 			}
+
+			@Override
+			public void onSkip() {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 	}
 
