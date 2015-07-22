@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
@@ -89,7 +90,9 @@ public class MainActivity extends ActionBarActivity implements IUpdateProgress,
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		if(BuildConfig.DEBUG){			
+			getMenuInflater().inflate(R.menu.main, menu);
+		}
 		return true;
 	}
 
@@ -326,9 +329,16 @@ public class MainActivity extends ActionBarActivity implements IUpdateProgress,
 						}
 
 						@Override
-						public void onProgressInfo(String pMsg) {
+						public void onProgressInfo(final String pMsg) {
 							// TODO Auto-generated method stub
-							
+							m_LV.post(new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									m_CaculateProgress.setMessage(pMsg);
+								}
+							});
 						}
 					});
 		}
