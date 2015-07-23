@@ -7,5 +7,14 @@
     <string name="continueFallingDays">连跌天数</string>
 	<string name="continueRiseDays">连涨天数</string>
 	<string name="action_uploadfile">上传文件</string>
+	<string name="user_bind_mobile_msg">此移动电话将用于会议室预订功能和工资密码找回功能，为了您更方便的操作，建议您绑定手机号。</string>
+	
+	<string name="gongzi_input_hint_mobile">请输入您的手机号</string>
+	 <string name="gongzi_please_input_code">请输入验证码</string>
+    <string name="gongzi_please_correct_mobile">请输入正确的手机号</string>
+    <string name="gongzi_please_input_pwd">请输入密码</string>
+    <string name="gongzi_please_reinput_pwd">请再次输入密码</string>
+    <string name="gongzi_input_hint_code">请输入验证码</string>
+    <string name="bs_finish">完成</string>
 </resources>
 

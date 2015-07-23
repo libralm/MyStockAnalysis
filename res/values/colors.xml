@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bs_top_bar_font">#FFFFFF</color>
+     <color name="gongzi_code_btn_un">#adadad</color>
+    <color name="gongzi_code_btn">#787878</color>
+    <color name="bs_blue">#008be6</color>
+    <color name="bs_line_new">#CCCCCC</color>
+    <color name="bs_top_bar_bg">#000000</color>
+    <color name="bs_blue_press">#005286</color>
+</resources>

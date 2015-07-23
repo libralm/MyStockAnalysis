@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/bs_topbar" />
+
+    <LinearLayout
+        android:id="@+id/bindInfoItemVg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bind_moble_ic"
+            android:paddingBottom="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="@string/user_bind_mobile_msg"
+            android:textColor="#787878"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="请输入手机号并获取验证码"
+            android:textColor="#000"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/mobileEt"
+                style="@style/gongziEt"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:hint="@string/gongzi_input_hint_mobile"
+                android:inputType="phone"
+                android:maxLength="11"
+                android:paddingLeft="10dp" >
+
+                <requestFocus />
+            </EditText>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/codeEt"
+                    style="@style/gongziEt"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1.0"
+                    android:gravity="center_vertical"
+                    android:hint="@string/gongzi_input_hint_code"
+                    android:inputType="numberDecimal"
+                    android:paddingLeft="10dp" />
+
+                <Button
+                    android:id="@+id/getCodeBtn"
+                    android:layout_width="115dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/gongzi_getcode_bg_selector"
+                    android:text="获取验证码"
+                    android:textColor="@color/gongzi_getcode_btn_font_selector"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/nextBtn"
+            style="@style/bsBtn"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:enabled="false"
+            android:text="完成" />
+    </LinearLayout>
+
+</LinearLayout>
