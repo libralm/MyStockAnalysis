@@ -15,7 +15,6 @@ import java.util.Set;
 
 import android.accounts.NetworkErrorException;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -32,9 +31,6 @@ import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
 import com.libra.stockanalysisi.engine.NetDataCallback;
 import com.libra.stockanalysisi.engine.StockInfoCallBack;
-import com.libra.stockanalysisi.engine.pay.IPayListener;
-import com.libra.stockanalysisi.engine.pay.IPayService;
-import com.libra.stockanalysisi.engine.pay.impl.BmobPayServiceImpl;
 
 @SuppressLint("SimpleDateFormat")
 public class StockBussisceFacde implements FacdeService {
@@ -45,16 +41,13 @@ public class StockBussisceFacde implements FacdeService {
 
 	private IUpdateProgress m_UpdateProgressCallBack;
 
-	private IPayService m_PayService;
-
 	private Context m_Context;
 
-	public StockBussisceFacde(Activity pContext) {
+	public StockBussisceFacde(Context pContext) {
 		super();
 		m_Context = pContext;
 		m_NetService = new DataNetService(pContext);
 		m_PersistenceService = new PersistenceServiceImpl();
-		m_PayService = new BmobPayServiceImpl(pContext);
 	}
 
 	private Stock[] readDetailStocksInfo(Date pDate)
@@ -68,14 +61,6 @@ public class StockBussisceFacde implements FacdeService {
 
 	public int getStocksNumber() {
 		return readAllBaseStockInfo().length;
-	}
-
-	public void payZhifubao(IPayListener pPayListener) {
-		m_PayService.payZhifubao(pPayListener);
-	}
-
-	public void payWeixin(IPayListener pPayListener) {
-		m_PayService.payWeixin(pPayListener);
 	}
 
 	/**
