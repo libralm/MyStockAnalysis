@@ -27,15 +27,23 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
-            
+            android:label="@string/app_name" >            
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
         </activity>
         <activity android:name=".LoginActivity" >
         </activity>
+        <receiver android:name=".receiver.AutoUpdateDataRecevier"
+            android:exported="false"
+            android:process=":autoupdate">
+            <intent-filter >
+                <action android:name="action.auto.update.data"/>
+            </intent-filter>
+        </receiver>
+        
     </application>
 
 </manifest>
