@@ -26,11 +26,11 @@ public class LoginActivity extends Activity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_login);
+		setContentView(R.layout.login_activity);
 		AppBussinessFacdeService abf = new AppBussinessFacdeService(this);
 		m_UserManagerControl = new UserManagerControl(this, (UserBussinessFacde) abf.getFacdeService(AppBussinessFacdeService.USER_FACDE_SERVICE));
 		m_SBF = (StockBussisceFacde) abf.getFacdeService(AppBussinessFacdeService.STOCK_FACDE_SERVICE);
-		initView();
+//		initView();
 	}
 
 
