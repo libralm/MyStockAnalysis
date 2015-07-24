@@ -9,7 +9,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
