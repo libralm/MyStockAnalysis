@@ -1,5 +1,7 @@
 package com.libra.stockanalysisi.engine;
 
+import cn.bmob.v3.BmobUser;
+
 import com.libra.stockanalysisi.bean.User;
 
 public interface IUserManagerService {
@@ -8,10 +10,10 @@ public interface IUserManagerService {
 	 * 用户注册
 	 * @param pUserName
 	 * @param pPassword
-	 * @param email
+	 * @param pEmail
 	 * @param pCallback
 	 */
-	void regiester(String pUserName,String pPassword,String email, NetDataCallback pCallback);
+	void regiester(String pUserName,String pPassword,String pEmail, NetDataCallback pCallback);
 	
 	/**
 	 * 用户登录
@@ -33,7 +35,7 @@ public interface IUserManagerService {
 	 * 得到当前用户
 	 * @return 
 	 */
-	User getCurrentUser();
+	BmobUser getCurrentUser();
 	
 	/**
 	 * 退出登录
