@@ -5,12 +5,12 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,14 +32,14 @@ import cn.aigestudio.datepicker.views.DatePicker;
 
 import com.libra.stockanalysisi.bean.Stock;
 import com.libra.stockanalysisi.engine.IContinousStateStocksCallBack;
+import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
 import com.libra.stockanalysisi.engine.IPersistenceService;
 import com.libra.stockanalysisi.engine.IUpdateProgress;
-import com.libra.stockanalysisi.engine.IDataSyncService.AsyncFileCallback;
 import com.libra.stockanalysisi.engine.impl.AppBussinessFacdeService;
 import com.libra.stockanalysisi.engine.impl.StockBussisceFacde;
 import com.libra.stockanalysisi.view.widget.ScaleWindowView;
 
-public class MainActivity extends ActionBarActivity implements IUpdateProgress,
+public class MainActivity extends Activity implements IUpdateProgress,
 		OnItemClickListener, OnEditorActionListener, OnClickListener {
 
 	private EditText m_FallingET, m_RiseET;
@@ -157,7 +157,7 @@ public class MainActivity extends ActionBarActivity implements IUpdateProgress,
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	class MyAdapter extends BaseAdapter {
