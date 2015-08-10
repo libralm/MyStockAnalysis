@@ -2,6 +2,7 @@ package com.libra.stockanalysisi.control;
 
 import android.content.Context;
 import android.widget.Toast;
+import cn.bmob.v3.BmobUser;
 
 import com.libra.stockanalysisi.engine.NetDataCallback;
 import com.libra.stockanalysisi.engine.impl.UserBussinessFacde;
@@ -95,29 +96,9 @@ public class UserManagerControl {
 	}
 
 
-	public void login(String username, String psd) {
+	public void login(String username, String psd,NetDataCallback pCallback) {
 		// TODO Auto-generated method stub
-		m_Facde.login(username, psd, new NetDataCallback() {
-			
-			@Override
-			public void onSuccess() {
-				// TODO Auto-generated method stub
-				Toast.makeText(m_Context, "登陆成功", Toast.LENGTH_SHORT).show();
-			}
-			
-			@Override
-			public void onFailure(int pCode, String pMsg) {
-				// TODO Auto-generated method stub
-				Toast.makeText(m_Context, pMsg, Toast.LENGTH_SHORT).show();
-
-			}
-
-			@Override
-			public void onSkip() {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		m_Facde.login(username, psd, pCallback);
 	}
 
 
@@ -142,5 +123,9 @@ public class UserManagerControl {
 				
 			}
 		});
+	}
+	
+	public BmobUser getCurrentUser(){
+		return m_Facde.getCurrentUser();
 	}
 }
