@@ -162,9 +162,9 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 	}
 
 	@Override
-	public User getCurrentUser() {
+	public BmobUser getCurrentUser() {
 		// TODO Auto-generated method stub
-		return (User) User.getCurrentUser(m_Context);
+		return User.getCurrentUser(m_Context);
 	}
 
 	@Override
@@ -295,9 +295,9 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 			@Override
 			public void done(Integer arg0, BmobException arg1) {
 				// TODO Auto-generated method stub
-				if(arg1 == null){
+				if(arg1 == null) {
 					pCallback.onSuccess();
-				} else{
+				} else {
 					pCallback.onFailure(arg0, arg1.getLocalizedMessage());
 				}
 			}
@@ -346,5 +346,4 @@ class BmobUserManagerServiceImpl implements IUserManagerService {
 			}
 		});
 	}
-
 }
