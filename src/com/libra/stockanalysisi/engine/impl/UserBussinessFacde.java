@@ -1,6 +1,7 @@
 package com.libra.stockanalysisi.engine.impl;
 
 import android.content.Context;
+import cn.bmob.v3.BmobUser;
 
 import com.libra.stockanalysisi.bean.User;
 import com.libra.stockanalysisi.engine.FacdeService;
@@ -30,7 +31,7 @@ public class UserBussinessFacde implements IUserManagerService, FacdeService{
 	}
 
 	@Override
-	public User getCurrentUser() {
+	public BmobUser getCurrentUser() {
 		// TODO Auto-generated method stub
 		return m_UserManagerService.getCurrentUser();
 	}
