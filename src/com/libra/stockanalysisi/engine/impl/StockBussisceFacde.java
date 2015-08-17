@@ -529,11 +529,11 @@ public class StockBussisceFacde implements FacdeService {
 			if (isContinueFallingFlag) {
 				Stock stock = new Stock(string, stocks[stocks.length-1].getName(),
 						stocks[stocks.length-1].getTodayStartPri(),
-						stocks[stocks.length-1].getYestodEndPri(), stocks[0].getNowPri(),
-						stocks[stocks.length-1].getTodayMax(), stocks[0].getTodayMin(),
+						stocks[stocks.length-1].getYestodEndPri(), stocks[stocks.length-1].getNowPri(),
+						stocks[stocks.length-1].getTodayMax(), stocks[stocks.length-1].getTodayMin(),
 						stocks[stocks.length-1].getCompetitivePri(),
-						stocks[stocks.length-1].getReservePri(), stocks[0].getTraNumber(),
-						stocks[stocks.length-1].getTraAmount(), stocks[0].getDate());
+						stocks[stocks.length-1].getReservePri(), stocks[stocks.length-1].getTraNumber(),
+						stocks[stocks.length-1].getTraAmount(), stocks[stocks.length-1].getDate());
 				list.add(stock);
 			}
 			isContinueFallingFlag = true;
@@ -587,11 +587,11 @@ public class StockBussisceFacde implements FacdeService {
 			if (isContinueFallingFlag) {
 				Stock stock = new Stock(string, stocks[stocks.length-1].getName(),
 						stocks[stocks.length-1].getTodayStartPri(),
-						stocks[stocks.length-1].getYestodEndPri(), stocks[0].getNowPri(),
-						stocks[stocks.length-1].getTodayMax(), stocks[0].getTodayMin(),
+						stocks[stocks.length-1].getYestodEndPri(), stocks[stocks.length-1].getNowPri(),
+						stocks[stocks.length-1].getTodayMax(), stocks[stocks.length-1].getTodayMin(),
 						stocks[stocks.length-1].getCompetitivePri(),
-						stocks[stocks.length-1].getReservePri(), stocks[0].getTraNumber(),
-						stocks[stocks.length-1].getTraAmount(), stocks[0].getDate());
+						stocks[stocks.length-1].getReservePri(), stocks[stocks.length-1].getTraNumber(),
+						stocks[stocks.length-1].getTraAmount(), stocks[stocks.length-1].getDate());
 				list.add(stock);
 			}
 			isContinueFallingFlag = true;
